@@ -12,21 +12,16 @@
   <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
   <script>
     // ── EMAILJS CONFIG ──
-    // ⚠️  REPLACE these three values with your own from emailjs.com (free account)
-    // 1. Go to https://emailjs.com → Sign up free
-    // 2. Add an Email Service (Gmail) → copy the Service ID
-    // 3. Create two Email Templates (one for auth, one for bookings) → copy Template IDs
-    // 4. Go to Account → copy your Public Key
     const EMAILJS_CONFIG = {
-      publicKey:        'YOUR_PUBLIC_KEY',       // e.g. 'abc123XYZ'
-      serviceId:        'YOUR_SERVICE_ID',       // e.g. 'service_xxxxxx'
-      templateAuth:     'YOUR_AUTH_TEMPLATE_ID', // e.g. 'template_xxxxxx'  (login/register emails)
-      templateBooking:  'YOUR_BOOKING_TEMPLATE_ID', // e.g. 'template_yyyyyy' (contact/booking emails)
-      ownerEmail:       'chinmaywebstudio@gmail.com',
+      publicKey:       'nrDPF2WxXE3vlEoRX',
+      serviceId:       'service_lkzl8tu',
+      templateAuth:    'template_kd8devh',   // login / register notifications
+      templateBooking: 'template_0sul3wc',   // contact / booking messages
+      ownerEmail:      'chinmaywebstudio@gmail.com',
     };
-    // Template variables used in EmailJS templates:
-    // Auth template:    {{to_email}}, {{event_type}}, {{user_name}}, {{user_email}}, {{timestamp}}
-    // Booking template: {{to_email}}, {{client_name}}, {{client_email}}, {{message}}, {{timestamp}}
+    // Template variables used in your EmailJS templates:
+    // Auth template    (template_kd8devh):  {{to_email}}, {{event_type}}, {{user_name}}, {{user_email}}, {{timestamp}}
+    // Booking template (template_0sul3wc):  {{to_email}}, {{client_name}}, {{client_email}}, {{message}}, {{timestamp}}
   </script>
 
   <style>
