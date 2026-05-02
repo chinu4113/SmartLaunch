@@ -210,8 +210,28 @@
       box-shadow:0 3px 12px rgba(29,78,216,.3);
     }
     .auth-btn-register:hover { opacity:.88; transform:translateY(-1px); }
-    .topbar-user-info { display:none; align-items:center; gap:10px; }
+    .topbar-user-info { display:none; align-items:center; gap:10px; position:relative; }
     .topbar-user-info.show { display:flex; }
+    .topbar-profile-btn { display:flex; align-items:center; gap:8px; background:none; border:none; cursor:pointer; font-family:var(--font); padding:4px 8px 4px 4px; border-radius:10px; transition:background .2s; }
+    .topbar-profile-btn:hover { background:rgba(255,255,255,.06); }
+    .profile-dropdown {
+      position:absolute; top:calc(100% + 10px); right:0; min-width:190px;
+      background:var(--surface); border:1.5px solid var(--border); border-radius:12px;
+      box-shadow:0 12px 40px rgba(0,0,0,.5); z-index:999;
+      opacity:0; pointer-events:none; transform:translateY(-6px);
+      transition:opacity .18s ease, transform .18s ease;
+    }
+    .profile-dropdown.open { opacity:1; pointer-events:all; transform:translateY(0); }
+    .profile-dropdown-header { padding:14px 16px 10px; border-bottom:1px solid var(--border); }
+    .profile-dropdown-name { font-weight:700; font-size:13px; color:var(--text-prim); }
+    .profile-dropdown-email { font-size:11px; color:var(--text-muted); margin-top:2px; }
+    .profile-dropdown-logout {
+      display:flex; align-items:center; gap:10px; width:100%; padding:12px 16px;
+      background:none; border:none; cursor:pointer; font-family:var(--font);
+      font-size:13px; font-weight:600; color:#f87171; text-align:left;
+      transition:background .15s; border-radius:0 0 10px 10px;
+    }
+    .profile-dropdown-logout:hover { background:rgba(239,68,68,.1); }
     .topbar-avatar {
       width:30px; height:30px; border-radius:50%;
       background:linear-gradient(135deg,#1d4ed8,#06b6d4);
@@ -611,11 +631,17 @@
       </div>
       <!-- User info (shown when logged in) -->
       <div class="topbar-user-info" id="topbar-user-info">
-        <div class="topbar-avatar" id="topbar-avatar-letter">C</div>
-        <span class="topbar-username" id="topbar-username">User</span>
-        <div class="avail-badge" style="margin-left:12px;">
-          <div class="avail-dot pulse-green"></div>
-          <span class="avail-text">Available for Projects</span>
+        <button class="topbar-profile-btn" onclick="toggleProfileDropdown(event)">
+          <div class="topbar-avatar" id="topbar-avatar-letter">C</div>
+          <span class="topbar-username" id="topbar-username">User</span>
+          <span style="font-size:10px;color:var(--text-muted);margin-left:2px;">▾</span>
+        </button>
+        <div class="profile-dropdown" id="profile-dropdown">
+          <div class="profile-dropdown-header">
+            <div class="profile-dropdown-name" id="dropdown-name">User</div>
+            <div class="profile-dropdown-email" id="dropdown-email">user@email.com</div>
+          </div>
+          <button class="profile-dropdown-logout" onclick="logoutUser()">🚪 Sign Out</button>
         </div>
       </div>
     </header>
@@ -906,6 +932,10 @@
       const letter = (currentUser.name || 'U')[0].toUpperCase();
       document.getElementById('topbar-avatar-letter').textContent = letter;
       document.getElementById('topbar-username').textContent = currentUser.name || currentUser.email;
+      const dn = document.getElementById('dropdown-name');
+      const de = document.getElementById('dropdown-email');
+      if (dn) dn.textContent = currentUser.name || 'User';
+      if (de) de.textContent = currentUser.email || '';
     }
     // Sidebar user box
     document.getElementById('sidebar-user-box').classList.toggle('show', isLoggedIn);
@@ -918,6 +948,18 @@
     // Rebuild sidebar nav (hides Sign In when logged in)
     buildSidebarNav();
   }
+
+  function toggleProfileDropdown(e) {
+    e.stopPropagation();
+    const dd = document.getElementById('profile-dropdown');
+    dd.classList.toggle('open');
+  }
+
+  // Close dropdown when clicking anywhere else
+  document.addEventListener('click', () => {
+    const dd = document.getElementById('profile-dropdown');
+    if (dd) dd.classList.remove('open');
+  });
 
   function logoutUser() {
     currentUser = null;
