@@ -834,7 +834,6 @@
     { id:"testimonials", label:"Reviews",      icon:"◎",  auth:false },
     { id:"contact",      label:"Contact",      icon:"✉",  auth:false },
     { id:"login",        label:"Sign In",      icon:"🔐", auth:'guest' }, // only for guests
-    { id:"owner",        label:"Owner Dashboard", icon:"⚙️", auth:'owner' }, // hidden — accessible only via URL or secret tap
   ];
 
   const DATA = {
@@ -1466,6 +1465,8 @@
     NAV.forEach(item => {
       // Skip "Sign In" nav entry if user is logged in
       if (item.auth === 'guest' && currentUser) return;
+      // Never show owner items in sidebar
+      if (item.auth === 'owner') return;
 
       const btn = document.createElement('button');
       btn.className = 'nav-btn';
