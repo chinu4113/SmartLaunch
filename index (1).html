@@ -1,0 +1,967 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Chinmay Joshi — SmartLaunch Web Development</title>
+  <meta name="description" content="Chinmay Joshi, Full-Stack Web Developer & Founder of SmartLaunch. I build fast, mobile-friendly websites that grow your business. 3–7 day delivery." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    /* ── RESET & BASE ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg:        #0a0a0f;
+      --surface:   #111118;
+      --surface-up:#17171f;
+      --border:    #1e1e2e;
+      --border-br: #2a2a3e;
+      --text-prim: #e8e8f0;
+      --text-sec:  #8888aa;
+      --text-muted:#44445a;
+      --accent:    #3b82f6;
+      --accent-cy: #06b6d4;
+      --accent-gr: #10b981;
+      --accent-pu: #8b5cf6;
+      --green:     #22c55e;
+      --font:      'Plus Jakarta Sans', sans-serif;
+    }
+    html { scroll-behavior: smooth; }
+    body { font-family: var(--font); background: var(--bg); color: var(--text-prim); min-height: 100vh; overflow-x: hidden; }
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: var(--surface); }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+    ::placeholder { color: var(--text-muted); }
+    a { text-decoration: none; }
+    button { font-family: var(--font); cursor: pointer; }
+
+    /* ── ANIMATIONS ── */
+    @keyframes fadeUp   { from { opacity:0; transform:translateY(22px); } to { opacity:1; transform:translateY(0); } }
+    @keyframes slideIn  { from { opacity:0; transform:translateX(30px); } to { opacity:1; transform:translateX(0); } }
+    @keyframes pulseGreen { 0%,100%{box-shadow:0 0 0 0 rgba(34,197,94,.35)} 50%{box-shadow:0 0 0 7px rgba(34,197,94,0)} }
+    .pulse-green { animation: pulseGreen 2.2s ease-in-out infinite; }
+    .fade-up     { animation: fadeUp 0.7s ease both; }
+    .slide-in    { animation: slideIn 0.3s cubic-bezier(0.4,0,0.2,1) both; }
+    .reveal { opacity:0; transform:translateY(28px); transition: opacity .65s ease, transform .65s ease; }
+    .reveal.visible { opacity:1; transform:translateY(0); }
+
+    /* ── SIDEBAR TOGGLE BUTTON ── */
+    #sidebar-toggle {
+      position: fixed; left:16px; top:14px; z-index:1100;
+      width:36px; height:36px; border-radius:9px; border:1.5px solid var(--border);
+      background:var(--surface-up); color:var(--text-sec);
+      display:flex; flex-direction:column; align-items:center; justify-content:center;
+      gap:4px; cursor:pointer; transition:all .2s; box-shadow:0 2px 12px rgba(0,0,0,.3);
+    }
+    #sidebar-toggle:hover { border-color:var(--accent); color:var(--accent); background:rgba(59,130,246,.08); }
+    .bar { width:16px; height:2px; border-radius:2px; background:currentColor; transition:all .25s; }
+    #sidebar-toggle.open .bar:nth-child(1) { transform:translateY(6px) rotate(45deg); }
+    #sidebar-toggle.open .bar:nth-child(2) { opacity:0; transform:scaleX(0); }
+    #sidebar-toggle.open .bar:nth-child(3) { transform:translateY(-6px) rotate(-45deg); }
+
+    /* ── SIDEBAR OVERLAY ── */
+    #sidebar-overlay {
+      position:fixed; inset:0; z-index:1050; background:rgba(0,0,0,.55);
+      backdrop-filter:blur(3px); opacity:0; pointer-events:none;
+      transition:opacity .3s ease;
+    }
+    #sidebar-overlay.visible { opacity:1; pointer-events:all; }
+
+    /* ── SIDEBAR DRAWER ── */
+    #sidebar {
+      position: fixed; left:0; top:0; height:100vh; width:260px; z-index:1080;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      display: flex; flex-direction: column;
+      box-shadow: 4px 0 32px rgba(0,0,0,.5);
+      transform: translateX(-100%);
+      transition: transform .32s cubic-bezier(0.4,0,0.2,1);
+    }
+    #sidebar.open { transform: translateX(0); }
+
+    .sidebar-header {
+      height:64px; display:flex; align-items:center; gap:12px; padding:0 20px;
+      border-bottom: 1px solid var(--border); flex-shrink:0;
+    }
+    .logo-mark {
+      width:34px; height:34px; border-radius:8px; flex-shrink:0;
+      background: linear-gradient(135deg,#1d4ed8,#06b6d4);
+      display:flex; align-items:center; justify-content:center;
+      box-shadow: 0 0 16px rgba(59,130,246,.3);
+    }
+    .logo-mark svg { width:20px; height:20px; }
+    .sidebar-brand-name { font-weight:800; font-size:14px; color:var(--text-prim); letter-spacing:-.01em; }
+    .sidebar-brand-sub  { font-family:monospace; font-size:9px; color:var(--text-muted); letter-spacing:.1em; margin-top:1px; }
+
+    #sidebar nav { flex:1; display:flex; flex-direction:column; gap:3px; padding:14px 12px; overflow-y:auto; }
+
+    .nav-btn {
+      display:flex; align-items:center; gap:13px;
+      padding:11px 14px; border-radius:10px; border:none;
+      background:transparent; color:var(--text-muted);
+      font-size:14px; font-weight:600; font-family:var(--font);
+      transition:all .18s; width:100%; position:relative; text-align:left;
+      cursor:pointer;
+    }
+    .nav-btn-icon { font-size:18px; flex-shrink:0; width:22px; text-align:center; }
+    .nav-btn-label { flex:1; }
+    .nav-btn-arrow { font-size:10px; opacity:0; transition:opacity .15s, transform .15s; }
+    .nav-btn:hover { background:rgba(255,255,255,.05); color:var(--text-sec); }
+    .nav-btn:hover .nav-btn-arrow { opacity:1; transform:translateX(2px); }
+    .nav-btn.active { background:rgba(59,130,246,.13); color:var(--accent); }
+    .nav-btn .active-bar {
+      position:absolute; left:0; top:50%; transform:translateY(-50%);
+      width:3px; height:20px; border-radius:0 3px 3px 0; background:var(--accent);
+      display:none;
+    }
+    .nav-btn.active .active-bar { display:block; }
+
+    .nav-divider { height:1px; background:var(--border); margin:8px 0; }
+
+    .sidebar-cta { padding:12px 12px 18px; border-top:1px solid var(--border); flex-shrink:0; display:flex; flex-direction:column; gap:8px; }
+    .wa-btn {
+      width:100%; padding:11px 14px; border-radius:10px; border:none;
+      background:linear-gradient(135deg,#22c55e,#16a34a);
+      color:#fff; display:flex; align-items:center; justify-content:center; gap:10px;
+      font-size:13px; font-weight:700; font-family:var(--font);
+      transition:opacity .2s; cursor:pointer;
+    }
+    .wa-btn:hover { opacity:.88; }
+
+    /* ── MAIN ── */
+    #main { margin-left:0; position:relative; z-index:1; }
+
+    /* ── TOP BAR ── */
+    #topbar {
+      height:64px; border-bottom:1px solid var(--border);
+      background:rgba(17,17,24,.93); backdrop-filter:blur(16px);
+      display:flex; align-items:center; justify-content:space-between;
+      padding:0 40px 0 68px; position:sticky; top:0; z-index:100;
+    }
+    .topbar-brand { display:flex; align-items:center; gap:14px; }
+    .topbar-brand .logo-mark { width:32px; height:32px; border-radius:7px; }
+    .topbar-brand .logo-mark svg { width:19px; height:19px; }
+    .brand-name { font-weight:800; font-size:14px; color:var(--text-prim); letter-spacing:-.01em; }
+    .brand-sub  { font-family:monospace; font-size:9px; color:var(--text-muted); letter-spacing:.1em; margin-top:1px; }
+    .avail-badge { display:flex; align-items:center; gap:8px; }
+    .avail-dot { width:7px; height:7px; border-radius:50%; background:var(--green); flex-shrink:0; }
+    .avail-text { font-size:12px; color:var(--text-sec); font-weight:500; }
+
+    /* ── HERO ── */
+    #hero {
+      min-height:calc(100vh - 64px); display:flex; align-items:center;
+      padding:0 7%; background:var(--bg); position:relative; overflow:hidden;
+    }
+    .hero-grid {
+      position:absolute; inset:0;
+      background-image: linear-gradient(var(--border) 1px, transparent 1px),
+                        linear-gradient(90deg, var(--border) 1px, transparent 1px);
+      background-size:48px 48px; opacity:.4; pointer-events:none;
+    }
+    .hero-glow1 {
+      position:absolute; top:5%; right:5%; width:500px; height:500px; border-radius:50%;
+      background:radial-gradient(circle,rgba(59,130,246,.07) 0%,transparent 65%); pointer-events:none;
+    }
+    .hero-glow2 {
+      position:absolute; bottom:10%; left:20%; width:300px; height:300px; border-radius:50%;
+      background:radial-gradient(circle,rgba(6,182,212,.05) 0%,transparent 65%); pointer-events:none;
+    }
+    .hero-content { max-width:700px; position:relative; z-index:1; }
+    .avail-pill {
+      display:inline-flex; align-items:center; gap:8px;
+      padding:6px 16px; border-radius:100px;
+      border:1.5px solid rgba(59,130,246,.25); background:rgba(59,130,246,.08); margin-bottom:28px;
+      font-size:12px; color:var(--accent); font-weight:600; letter-spacing:.05em;
+    }
+    .hero-eyebrow { font-family:monospace; font-size:11px; color:var(--text-muted); letter-spacing:.12em; margin-bottom:18px; }
+    .hero-h1 {
+      font-weight:800; font-size:clamp(2.4rem,5.5vw,4.2rem); line-height:1.1;
+      margin-bottom:24px; color:var(--text-prim); letter-spacing:-.025em;
+    }
+    .grad-text { background:linear-gradient(90deg,#3b82f6,#06b6d4); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+    .hero-p { font-size:clamp(1rem,1.8vw,1.1rem); color:var(--text-sec); line-height:1.85; max-width:520px; margin-bottom:42px; }
+    .hero-btns { display:flex; gap:12px; flex-wrap:wrap; margin-bottom:56px; }
+    .btn-primary {
+      padding:14px 32px; border-radius:10px; border:none;
+      background:linear-gradient(135deg,#1d4ed8,#06b6d4); color:#fff;
+      font-weight:700; font-size:14px; transition:all .25s;
+      box-shadow:0 4px 20px rgba(29,78,216,.35);
+    }
+    .btn-primary:hover { transform:translateY(-2px); box-shadow:0 10px 32px rgba(29,78,216,.5); }
+    .btn-outline {
+      padding:14px 24px; border-radius:10px; border:1.5px solid var(--border-br);
+      background:transparent; color:var(--text-sec);
+      font-weight:600; font-size:14px; transition:all .2s;
+    }
+    .btn-outline:hover { border-color:var(--accent); color:var(--text-prim); transform:translateY(-2px); }
+    .hero-stats { display:flex; gap:48px; flex-wrap:wrap; }
+    .stat-num { font-weight:800; font-size:2rem; color:var(--accent); line-height:1; }
+    .stat-lbl { font-size:11px; color:var(--text-muted); margin-top:6px; font-weight:500; }
+
+    /* ── QUICK CARDS ── */
+    #quick-cards {
+      padding:56px 6%;
+      display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
+      gap:12px; background:var(--surface);
+    }
+    .qcard {
+      padding:20px 16px; border-radius:12px; border:1.5px solid var(--border);
+      background:var(--surface-up); cursor:pointer; text-align:left;
+      transition:all .22s; display:flex; flex-direction:column; gap:8px;
+      width:100%;
+    }
+    .qcard:hover {
+      border-color:rgba(59,130,246,.3); background:rgba(59,130,246,.06);
+      transform:translateY(-3px); box-shadow:0 8px 24px rgba(0,0,0,.3);
+    }
+    .qcard-icon  { font-size:18px; color:var(--accent); }
+    .qcard-label { font-weight:700; font-size:12px; color:var(--text-prim); }
+    .qcard-open  { font-family:monospace; font-size:10px; color:var(--text-muted); }
+
+    /* ── FOOTER SIGNATURE ── */
+    .footer-sig {
+      border-top:1px solid var(--border); padding:20px 40px;
+      display:flex; align-items:center; justify-content:space-between;
+      flex-wrap:wrap; gap:12px; background:var(--bg);
+    }
+    .footer-brand { display:flex; align-items:center; gap:10px; }
+    .footer-logo { width:28px; height:28px; border-radius:6px; background:linear-gradient(135deg,#1d4ed8,#06b6d4); display:flex; align-items:center; justify-content:center; box-shadow:0 0 12px rgba(59,130,246,.3); }
+    .footer-logo svg { width:17px; height:17px; }
+    .footer-name { font-weight:800; font-size:13px; color:var(--text-prim); letter-spacing:-.01em; }
+    .footer-role { font-family:monospace; font-size:9px; color:var(--text-muted); letter-spacing:.1em; margin-top:1px; }
+    .footer-right { font-size:11px; color:var(--text-muted); text-align:right; }
+    .footer-right span.ac { color:var(--accent); font-weight:600; }
+
+    /* ── PANEL ── */
+    #panel {
+      position:fixed; inset:0; z-index:2000; background:var(--bg); overflow-y:auto; display:none;
+    }
+    #panel.open { display:block; }
+    .panel-topbar {
+      display:flex; align-items:center; justify-content:space-between;
+      padding:0 32px; height:64px; border-bottom:1px solid var(--border);
+      position:sticky; top:0; background:rgba(17,17,24,.95); backdrop-filter:blur(16px); z-index:10;
+    }
+    .panel-brand { display:flex; align-items:center; gap:12px; }
+    .panel-logo { width:32px; height:32px; border-radius:7px; background:linear-gradient(135deg,#1d4ed8,#06b6d4); display:flex; align-items:center; justify-content:center; box-shadow:0 0 12px rgba(59,130,246,.25); }
+    .panel-logo svg { width:19px; height:19px; }
+    .panel-title  { font-weight:800; font-size:13px; color:var(--text-prim); }
+    .panel-sub    { font-family:monospace; font-size:9px; color:var(--text-muted); letter-spacing:.08em; }
+    .panel-right  { display:flex; align-items:center; gap:12px; }
+    .panel-section-id { font-family:monospace; font-size:11px; color:var(--text-muted); letter-spacing:.12em; text-transform:uppercase; }
+    .close-btn {
+      width:36px; height:36px; border-radius:8px; border:1.5px solid var(--border);
+      background:var(--surface-up); color:var(--text-sec); font-size:16px;
+      display:flex; align-items:center; justify-content:center; transition:all .2s;
+    }
+    .close-btn:hover { background:rgba(239,68,68,.15); color:#f87171; border-color:rgba(239,68,68,.3); }
+    .panel-body { padding:48px 40px; max-width:960px; margin:0 auto; }
+
+    /* ── PANEL SECTIONS ── */
+    .section-eye { font-family:monospace; font-size:11px; color:var(--accent); letter-spacing:.15em; margin-bottom:14px; text-transform:uppercase; }
+    .section-h2  { font-weight:800; font-size:clamp(1.6rem,3vw,2.4rem); color:var(--text-prim); line-height:1.15; margin-bottom:8px; }
+    .section-p   { color:var(--text-sec); font-size:15px; margin-bottom:40px; line-height:1.7; }
+
+    /* About */
+    .about-grid { display:grid; grid-template-columns:1fr 1fr; gap:48px; align-items:start; }
+    .about-role  { font-size:13px; color:var(--accent); font-weight:600; margin-bottom:20px; letter-spacing:.01em; }
+    .about-bio   { line-height:1.85; color:var(--text-sec); font-size:.97rem; margin-bottom:28px; }
+    .skills-label { font-family:monospace; font-size:10px; color:var(--text-muted); letter-spacing:.12em; margin-bottom:12px; text-transform:uppercase; }
+    .skills-wrap { display:flex; flex-wrap:wrap; gap:8px; }
+    .skill-tag   { padding:5px 13px; border-radius:100px; border:1.5px solid rgba(59,130,246,.25); background:rgba(59,130,246,.08); font-weight:600; font-size:12px; color:var(--accent); }
+    .code-block  { border-radius:14px; border:1.5px solid var(--border); background:var(--surface-up); padding:24px; box-shadow:0 8px 32px rgba(0,0,0,.3); }
+    .code-file   { font-family:monospace; font-size:11px; color:var(--text-muted); margin-bottom:14px; letter-spacing:.08em; }
+    .code-line   { display:flex; gap:16px; font-family:monospace; font-size:13px; color:var(--text-sec); line-height:2.1; }
+    .code-ln     { color:var(--text-muted); min-width:16px; font-size:10px; padding-top:2px; user-select:none; }
+    .kw   { color:#8b5cf6; font-weight:700; }
+    .str  { color:#10b981; }
+    .bool { color:#06b6d4; }
+    .key  { color:#f59e0b; }
+
+    /* Services */
+    .svc-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:18px; }
+    .svc-card { border-radius:14px; border:1.5px solid var(--border); background:var(--surface-up); padding:24px; transition:all .22s; cursor:default; }
+    .svc-icon  { font-size:24px; margin-bottom:14px; font-weight:700; }
+    .svc-title { font-weight:700; font-size:.95rem; margin-bottom:8px; color:var(--text-prim); }
+    .svc-desc  { font-size:13px; color:var(--text-sec); line-height:1.75; margin-bottom:16px; }
+    .svc-price { display:inline-block; padding:4px 12px; border-radius:100px; font-weight:700; font-size:12px; }
+
+    /* Portfolio */
+    .proj-list { display:flex; flex-direction:column; gap:18px; }
+    .proj-card { border-radius:14px; border:1.5px solid var(--border); background:var(--surface-up); padding:28px; display:grid; grid-template-columns:150px 1fr; gap:28px; }
+    .proj-icon  { font-size:36px; margin-bottom:10px; }
+    .proj-tag   { display:inline-block; padding:3px 10px; border-radius:100px; font-weight:600; font-size:10px; margin-bottom:10px; }
+    .proj-name  { font-weight:800; font-size:1.1rem; color:var(--text-prim); margin-bottom:10px; }
+    .proj-link  { font-weight:600; font-size:12px; }
+    .proj-meta  { display:flex; flex-direction:column; gap:10px; }
+    .proj-row   { padding:12px 16px; border-radius:10px; }
+    .proj-lbl   { font-weight:700; font-size:10px; margin-bottom:5px; text-transform:uppercase; letter-spacing:.08em; }
+    .proj-txt   { font-size:.88rem; color:var(--text-sec); line-height:1.75; }
+
+    /* Why */
+    .why-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:16px; }
+    .why-card { border-radius:14px; border:1.5px solid var(--border); background:var(--surface-up); padding:24px; transition:all .22s; }
+    .why-card:hover { transform:translateY(-4px); border-color:rgba(59,130,246,.3); box-shadow:0 12px 32px rgba(0,0,0,.3); }
+    .why-icon  { font-size:24px; margin-bottom:12px; }
+    .why-title { font-weight:700; font-size:.9rem; margin-bottom:8px; color:var(--text-prim); }
+    .why-desc  { font-size:13px; color:var(--text-sec); line-height:1.75; }
+
+    /* Testimonials */
+    .testi-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:18px; }
+    .testi-card { border-radius:14px; border:1.5px solid var(--border); background:var(--surface-up); padding:28px; }
+    .testi-stars { color:#fbbf24; font-size:16px; margin-bottom:14px; letter-spacing:3px; }
+    .testi-text  { font-size:.95rem; color:var(--text-sec); line-height:1.85; margin-bottom:20px; }
+    .testi-divider { border-top:1px solid var(--border); padding-top:16px; }
+    .testi-name { font-weight:700; font-size:13px; color:var(--text-prim); }
+    .testi-role { font-size:11px; color:var(--text-muted); margin-top:4px; }
+
+    /* Contact */
+    .contact-grid { display:grid; grid-template-columns:1fr 1fr; gap:48px; align-items:start; }
+    .contact-links { display:flex; flex-direction:column; gap:12px; margin-bottom:22px; }
+    .contact-link {
+      display:flex; align-items:center; gap:12px; color:var(--text-sec);
+      font-size:14px; padding:11px 14px; border-radius:10px;
+      background:var(--surface-up); border:1.5px solid var(--border); transition:all .2s;
+    }
+    .contact-link:hover { background:rgba(59,130,246,.08); border-color:rgba(59,130,246,.3); color:var(--text-prim); }
+    .contact-link-icon { font-size:17px; }
+    .wa-cta { padding:12px 24px; border-radius:10px; border:none; background:linear-gradient(135deg,#22c55e,#16a34a); color:#fff; font-weight:700; font-size:14px; cursor:pointer; box-shadow:0 4px 16px rgba(34,197,94,.3); }
+    .form-box { background:var(--surface-up); border-radius:14px; border:1.5px solid var(--border); padding:28px; }
+    .form-title { font-weight:700; font-size:15px; color:var(--text-prim); margin-bottom:20px; }
+    .form-group { display:flex; flex-direction:column; gap:16px; }
+    .form-label { font-weight:600; font-size:11px; color:var(--text-muted); display:block; margin-bottom:6px; text-transform:uppercase; letter-spacing:.07em; }
+    .form-input, .form-textarea {
+      width:100%; padding:12px 14px; border-radius:10px; font-size:14px;
+      background:var(--bg); border:1.5px solid var(--border);
+      color:var(--text-prim); font-family:var(--font); outline:none; transition:border-color .2s;
+    }
+    .form-input:focus, .form-textarea:focus { border-color:var(--accent); }
+    .form-textarea { min-height:100px; resize:vertical; }
+    .form-submit {
+      padding:14px; border-radius:10px; border:none;
+      background:linear-gradient(135deg,#1d4ed8,#06b6d4); color:#fff;
+      font-family:var(--font); font-weight:700; font-size:14px;
+      cursor:pointer; transition:all .3s; box-shadow:0 4px 20px rgba(29,78,216,.3); width:100%;
+    }
+    .form-submit:hover { opacity:.9; transform:translateY(-1px); }
+
+    /* ── WHATSAPP FAB ── */
+    #wa-fab {
+      position:fixed; bottom:24px; right:24px; z-index:1500;
+      width:52px; height:52px; border-radius:50%;
+      background:linear-gradient(135deg,#22c55e,#16a34a);
+      display:flex; align-items:center; justify-content:center;
+      font-size:22px; box-shadow:0 6px 24px rgba(34,197,94,.4);
+      transition:transform .2s; text-decoration:none;
+    }
+    #wa-fab:hover { transform:scale(1.1); }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 700px) {
+      .about-grid, .contact-grid { grid-template-columns:1fr; }
+      .proj-card { grid-template-columns:1fr; }
+      #topbar { padding:0 16px; }
+      .panel-body { padding:28px 18px; }
+      .hero-stats { gap:28px; }
+      .footer-sig { padding:18px 20px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ── SIDEBAR TOGGLE BUTTON ── -->
+  <button id="sidebar-toggle" onclick="toggleSidebar()" title="Toggle Menu" aria-label="Toggle navigation menu">
+    <span class="bar"></span>
+    <span class="bar"></span>
+    <span class="bar"></span>
+  </button>
+
+  <!-- ── SIDEBAR OVERLAY ── -->
+  <div id="sidebar-overlay" onclick="closeSidebar()"></div>
+
+  <!-- ── SIDEBAR DRAWER ── -->
+  <aside id="sidebar">
+    <div class="sidebar-header">
+      <div class="logo-mark">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" fill="white"/></svg>
+      </div>
+      <div>
+        <div class="sidebar-brand-name">SmartLaunch</div>
+        <div class="sidebar-brand-sub">Chinmay Joshi · Dev</div>
+      </div>
+    </div>
+    <nav id="sidebar-nav"></nav>
+    <div class="sidebar-cta">
+      <a href="https://wa.me/918830613791?text=Hi%20Chinmay!%20I%20visited%20SmartLaunch%20and%20I%27d%20like%20to%20discuss%20a%20project." target="_blank" rel="noreferrer" style="text-decoration:none;">
+        <button class="wa-btn">💬 Chat on WhatsApp</button>
+      </a>
+    </div>
+  </aside>
+
+  <!-- ── MAIN ── -->
+  <main id="main">
+
+    <!-- Top Bar -->
+    <header id="topbar">
+      <div class="topbar-brand">
+        <div class="logo-mark topbar-logo-mark" style="width:32px;height:32px;border-radius:7px;">
+          <svg viewBox="0 0 24 24" fill="none" style="width:19px;height:19px;"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" fill="white"/></svg>
+        </div>
+        <div>
+          <div class="brand-name">SmartLaunch</div>
+          <div class="brand-sub">Chinmay Joshi · Web Development</div>
+        </div>
+      </div>
+      <div class="avail-badge">
+        <div class="avail-dot pulse-green"></div>
+        <span class="avail-text">Available for Projects</span>
+      </div>
+    </header>
+
+    <!-- Hero -->
+    <section id="hero">
+      <div class="hero-grid"></div>
+      <div class="hero-glow1"></div>
+      <div class="hero-glow2"></div>
+      <div class="hero-content fade-up">
+        <div class="avail-pill">
+          <div class="avail-dot pulse-green"></div>
+          AVAILABLE FOR NEW PROJECTS
+        </div>
+        <div class="hero-eyebrow">CHINMAY JOSHI · SMARTLAUNCH WEB DEVELOPMENT</div>
+        <h1 class="hero-h1">
+          I Build Websites<br>
+          <span class="grad-text">That Bring You</span><br>
+          Customers
+        </h1>
+        <p class="hero-p">Fast delivery. Modern design. Fully deployed. Your business website, live in days — not months. I handle everything end-to-end.</p>
+        <div class="hero-btns">
+          <button class="btn-primary" onclick="openInNewTab('contact')">Start Your Project →</button>
+          <button class="btn-outline" onclick="openInNewTab('portfolio')">View My Work</button>
+        </div>
+        <div class="hero-stats">
+          <div><div class="stat-num">3–7</div><div class="stat-lbl">Days Delivery</div></div>
+          <div><div class="stat-num">100%</div><div class="stat-lbl">Custom Design</div></div>
+          <div><div class="stat-num">10+</div><div class="stat-lbl">Happy Clients</div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Quick Cards -->
+    <section id="quick-cards"></section>
+
+    <!-- Footer -->
+    <footer class="footer-sig">
+      <div class="footer-brand">
+        <div class="footer-logo">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" fill="white"/></svg>
+        </div>
+        <div>
+          <div class="footer-name">Chinmay Joshi</div>
+          <div class="footer-role">FOUNDER · SMARTLAUNCH</div>
+        </div>
+      </div>
+      <div class="footer-right">
+        <span class="ac">Full-Stack Web Developer</span>
+        <span style="margin:0 8px;color:var(--border)">·</span>
+        <span>© <span id="footer-year"></span> SmartLaunch</span>
+      </div>
+    </footer>
+  </main>
+
+  <!-- ── PANEL OVERLAY ── -->
+  <div id="panel">
+    <div class="panel-topbar">
+      <div class="panel-brand">
+        <div class="panel-logo">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" fill="white"/></svg>
+        </div>
+        <div>
+          <div class="panel-title">SmartLaunch</div>
+          <div class="panel-sub">Chinmay Joshi · Full-Stack Developer</div>
+        </div>
+      </div>
+      <div class="panel-right">
+        <span class="panel-section-id" id="panel-section-label"></span>
+        <button class="close-btn" onclick="closePanel()">✕</button>
+      </div>
+    </div>
+    <div class="panel-body" id="panel-body"></div>
+    <!-- Panel Footer -->
+    <footer class="footer-sig">
+      <div class="footer-brand">
+        <div class="footer-logo">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" fill="white"/></svg>
+        </div>
+        <div>
+          <div class="footer-name">Chinmay Joshi</div>
+          <div class="footer-role">FOUNDER · SMARTLAUNCH</div>
+        </div>
+      </div>
+      <div class="footer-right">
+        <span class="ac">Full-Stack Web Developer</span>
+        <span style="margin:0 8px;color:var(--border)">·</span>
+        <span>© <span class="footer-year-inner"></span> SmartLaunch</span>
+      </div>
+    </footer>
+  </div>
+
+  <!-- ── WHATSAPP FAB ── -->
+  <a id="wa-fab" href="https://wa.me/918830613791?text=Hi%20Chinmay!%20I%20visited%20SmartLaunch%20and%20I%27d%20like%20to%20discuss%20a%20project." target="_blank" rel="noreferrer" class="pulse-green">💬</a>
+
+  <script>
+    // ── DATA ──────────────────────────────────────────────────────────────────
+    const NAV = [
+      { id:"home",         label:"Home",       icon:"⌂",  shortcut:"01" },
+      { id:"about",        label:"About",      icon:"◉",  shortcut:"02" },
+      { id:"services",     label:"Services",   icon:"◈",  shortcut:"03" },
+      { id:"portfolio",    label:"Portfolio",  icon:"◧",  shortcut:"04" },
+      { id:"why",          label:"Why Me",     icon:"◆",  shortcut:"05" },
+      { id:"testimonials", label:"Reviews",    icon:"◎",  shortcut:"06" },
+      { id:"contact",      label:"Contact",    icon:"✉",  shortcut:"07" },
+    ];
+
+    const DATA = {
+      home: {
+        body: "I design, develop, and deploy fast, mobile-friendly websites built for real-world use. From understanding your requirements to launching the final product — I handle everything end-to-end.",
+        stats: [["3–7","Days Delivery"],["100%","Custom Design"],["10+","Happy Clients"]],
+      },
+      about: {
+        role: "Full-Stack Web Developer & Founder of SmartLaunch",
+        bio: "I'm Chinmay Joshi, a freelance web developer focused on helping businesses build a strong online presence. I've delivered live projects like Dharmasetu within tight timelines without compromising performance or reliability. I design, develop, and deploy fast, mobile-friendly websites that are easy to manage and built for real-world use.",
+        skills: ["React","Next.js","Tailwind CSS","Vercel","Node.js","SEO","Responsive Design","Performance"],
+      },
+      services: [
+        { icon:"✦",    title:"Website Design",       desc:"Pixel-perfect custom designs. Every element crafted to convert visitors into customers.", price:"From ₹4,999", color:"#3b82f6" },
+        { icon:"⟨/⟩", title:"Website Development",   desc:"Clean, fast React or HTML/CSS code. Mobile-first, SEO-ready, lightning fast.",          price:"From ₹6,999", color:"#06b6d4" },
+        { icon:"↑",    title:"Deployment & Hosting",  desc:"Your site goes live on Vercel. Domain setup, SSL, zero downtime.",                       price:"From ₹999",   color:"#10b981" },
+        { icon:"∞",    title:"Full Package",           desc:"Design + Development + Deployment. You give me the content, I give you a live website.", price:"From ₹9,999", color:"#8b5cf6" },
+      ],
+      portfolio: [
+        { name:"Dharmasetu",   tag:"NGO / Social Impact",  url:"https://dharmasetu-red.vercel.app/", color:"#3b82f6", icon:"🌱", problem:"A charitable org had no digital presence to attract donors or volunteers.", solution:"Built a compelling storytelling site with donation flows, mobile-first design, deployed on Vercel.", result:"Fully live in under 7 days. Accessible to supporters worldwide." },
+        { name:"LocalShop Pro", tag:"Retail / E-commerce", url:"#",                                  color:"#06b6d4", icon:"🛍️", problem:"Local retail store losing customers to competitors with no online presence.", solution:"Product showcase site with contact forms, WhatsApp integration, and Google Maps.", result:"Owner started receiving 10+ weekly inquiries through the website." },
+        { name:"ServiceXpert",  tag:"Home Services",       url:"#",                                  color:"#10b981", icon:"🔧", problem:"Service provider relied solely on word-of-mouth with no way for new clients to find them.", solution:"Service listing site with booking form, testimonials, and SEO-optimized pages.", result:"Bookings increased 3× in the first month after launch." },
+      ],
+      why: [
+        { icon:"⚡", title:"Fast Delivery",        desc:"Most websites delivered in 3–7 days. No long waits, no excuses." },
+        { icon:"₹",  title:"Affordable Pricing",   desc:"Professional quality at prices that make sense for small businesses." },
+        { icon:"💬", title:"Direct Communication", desc:"You talk to me directly — no middlemen, no delays, no confusion." },
+        { icon:"✦",  title:"100% Custom Design",   desc:"Every website designed specifically for you. Zero cookie-cutter templates." },
+        { icon:"📱", title:"Mobile-First",          desc:"Your site looks perfect on every phone, tablet, and desktop screen." },
+        { icon:"🚀", title:"SEO Optimized",         desc:"Built so Google can find you and your customers can reach you easily." },
+      ],
+      testimonials: [
+        { name:"Rajesh Patil",   role:"Owner, Patil Grocery Store", text:"Chinmay built our website in just 5 days. Customers now call us after finding us online. Best investment we made.", rating:5 },
+        { name:"Sneha Kulkarni", role:"Yoga Instructor",            text:"I was skeptical about getting a website. Chinmay made it so simple and the result is absolutely beautiful. My bookings doubled.", rating:5 },
+        { name:"Amir Khan",      role:"Dharmasetu NGO",             text:"Professional, responsive, and truly understands what clients need. Our website looks world-class now.", rating:5 },
+      ],
+      contact: {
+        email:"chinmaywebstudio@gmail.com",
+        phone:"+91 8830613791",
+        whatsapp:"8830613791",
+        linkedin:"https://www.linkedin.com/in/chinmay-joshi-a22a00358",
+      },
+    };
+
+    // ── INIT ──────────────────────────────────────────────────────────────────
+    let activeSection = "home";
+
+    document.querySelectorAll('.footer-year-inner, #footer-year').forEach(el => el.textContent = new Date().getFullYear());
+
+    // ── SIDEBAR TOGGLE ────────────────────────────────────────────────────────
+    function toggleSidebar() {
+      const sidebar = document.getElementById('sidebar');
+      const overlay = document.getElementById('sidebar-overlay');
+      const toggle  = document.getElementById('sidebar-toggle');
+      const isOpen  = sidebar.classList.contains('open');
+      if (isOpen) {
+        sidebar.classList.remove('open');
+        overlay.classList.remove('visible');
+        toggle.classList.remove('open');
+      } else {
+        sidebar.classList.add('open');
+        overlay.classList.add('visible');
+        toggle.classList.add('open');
+      }
+    }
+
+    function closeSidebar() {
+      document.getElementById('sidebar').classList.remove('open');
+      document.getElementById('sidebar-overlay').classList.remove('visible');
+      document.getElementById('sidebar-toggle').classList.remove('open');
+    }
+
+    // close sidebar on Escape
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') {
+        closeSidebar();
+        closePanel();
+      }
+    });
+
+    // Build sidebar nav
+    const navEl = document.getElementById('sidebar-nav');
+    NAV.forEach(item => {
+      // Home button — goes back to home (closes panel), stays in same tab
+      if (item.id === 'home') {
+        const btn = document.createElement('button');
+        btn.className = 'nav-btn' + (item.id === activeSection ? ' active' : '');
+        btn.id = 'nav-' + item.id;
+        btn.title = item.label;
+        btn.innerHTML = `<div class="active-bar"></div><span class="nav-btn-icon">${item.icon}</span><span class="nav-btn-label">${item.label}</span>`;
+        btn.onclick = () => {
+          closePanel();
+          closeSidebar();
+          // Update active state
+          document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          activeSection = 'home';
+        };
+        navEl.appendChild(btn);
+        // Divider after home
+        const div = document.createElement('div');
+        div.className = 'nav-divider';
+        navEl.appendChild(div);
+        return;
+      }
+
+      const btn = document.createElement('button');
+      btn.className = 'nav-btn' + (item.id === activeSection ? ' active' : '');
+      btn.id = 'nav-' + item.id;
+      btn.title = item.label + ' — opens in new tab';
+      btn.innerHTML = `<div class="active-bar"></div><span class="nav-btn-icon">${item.icon}</span><span class="nav-btn-label">${item.label}</span><span class="nav-btn-arrow">↗</span>`;
+      btn.onclick = () => {
+        closeSidebar();
+        openInNewTab(item.id);
+      };
+      navEl.appendChild(btn);
+    });
+
+    // Build quick cards
+    const qc = document.getElementById('quick-cards');
+    NAV.filter(n => n.id !== 'home').forEach((item, i) => {
+      const btn = document.createElement('button');
+      btn.className = 'qcard reveal';
+      btn.style.transitionDelay = (i * 0.06) + 's';
+      btn.innerHTML = `
+        <div class="qcard-icon">${item.icon}</div>
+        <div class="qcard-label">${item.label}</div>
+        <div class="qcard-open">Open →</div>`;
+      btn.onclick = () => openInNewTab(item.id);
+      qc.appendChild(btn);
+    });
+
+    // ── SCROLL REVEAL ─────────────────────────────────────────────────────────
+    const obs = new IntersectionObserver(entries => {
+      entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+    }, { threshold: 0.06 });
+    document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+
+    // ── OPEN SECTION IN NEW TAB ───────────────────────────────────────────────
+    function openInNewTab(id) {
+      const newWin = window.open('', '_blank');
+      if (!newWin) { alert('Please allow popups for this site.'); return; }
+
+      const label = NAV.find(n => n.id === id)?.label || id;
+
+      // Build the inner HTML for the section using the existing render functions
+      const sectionHtml = renderSection(id);
+
+      // Write a full standalone page into the new window
+      newWin.document.open();
+      newWin.document.write('<!DOCTYPE html><html lang="en"><head>');
+      newWin.document.write('<meta charset="UTF-8"/>');
+      newWin.document.write('<meta name="viewport" content="width=device-width,initial-scale=1"/>');
+      newWin.document.write('<title>' + label + ' \u2014 SmartLaunch \u00B7 Chinmay Joshi</title>');
+      newWin.document.write('<link rel="preconnect" href="https://fonts.googleapis.com"/>');
+      newWin.document.write('<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>');
+      newWin.document.write('<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>');
+      newWin.document.write('<style>');
+      newWin.document.write('*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}');
+      newWin.document.write(':root{--bg:#0a0a0f;--surface:#111118;--surface-up:#17171f;--border:#1e1e2e;--border-br:#2a2a3e;--text-prim:#e8e8f0;--text-sec:#8888aa;--text-muted:#44445a;--accent:#3b82f6;--accent-cy:#06b6d4;--accent-gr:#10b981;--accent-pu:#8b5cf6;--green:#22c55e;--font:"Plus Jakarta Sans",sans-serif}');
+      newWin.document.write('html{scroll-behavior:smooth}body{font-family:var(--font);background:var(--bg);color:var(--text-prim);min-height:100vh;overflow-x:hidden}');
+      newWin.document.write('::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:var(--surface)}::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}');
+      newWin.document.write('a{text-decoration:none}button{font-family:var(--font);cursor:pointer}::placeholder{color:var(--text-muted)}');
+      newWin.document.write('.topbar{height:64px;border-bottom:1px solid var(--border);background:rgba(17,17,24,.95);backdrop-filter:blur(16px);display:flex;align-items:center;justify-content:space-between;padding:0 32px;position:sticky;top:0;z-index:100}');
+      newWin.document.write('.brand-wrap{display:flex;align-items:center;gap:12px}.logo-mark{width:32px;height:32px;border-radius:7px;background:linear-gradient(135deg,#1d4ed8,#06b6d4);display:flex;align-items:center;justify-content:center;box-shadow:0 0 12px rgba(59,130,246,.25)}.logo-mark svg{width:19px;height:19px}');
+      newWin.document.write('.brand-name{font-weight:800;font-size:14px;color:var(--text-prim);letter-spacing:-.01em}.brand-sub{font-family:monospace;font-size:9px;color:var(--text-muted);letter-spacing:.1em;margin-top:1px}');
+      newWin.document.write('.back-btn{display:flex;align-items:center;gap:8px;padding:9px 18px;border-radius:9px;border:1.5px solid var(--border);background:var(--surface-up);color:var(--text-sec);font-size:13px;font-weight:600;cursor:pointer;transition:all .2s}.back-btn:hover{border-color:var(--accent);color:var(--accent);background:rgba(59,130,246,.08)}');
+      newWin.document.write('.panel-body{padding:48px 40px;max-width:960px;margin:0 auto}');
+      newWin.document.write('.section-eye{font-family:monospace;font-size:11px;color:var(--accent);letter-spacing:.15em;margin-bottom:14px;text-transform:uppercase}.section-h2{font-weight:800;font-size:clamp(1.6rem,3vw,2.4rem);color:var(--text-prim);line-height:1.15;margin-bottom:8px}.section-p{color:var(--text-sec);font-size:15px;margin-bottom:40px;line-height:1.7}');
+      newWin.document.write('.about-grid{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:start}.about-role{font-size:13px;color:var(--accent);font-weight:600;margin-bottom:20px}.about-bio{line-height:1.85;color:var(--text-sec);font-size:.97rem;margin-bottom:28px}');
+      newWin.document.write('.skills-label{font-family:monospace;font-size:10px;color:var(--text-muted);letter-spacing:.12em;margin-bottom:12px;text-transform:uppercase}.skills-wrap{display:flex;flex-wrap:wrap;gap:8px}.skill-tag{padding:5px 13px;border-radius:100px;border:1.5px solid rgba(59,130,246,.25);background:rgba(59,130,246,.08);font-weight:600;font-size:12px;color:var(--accent)}');
+      newWin.document.write('.code-block{border-radius:14px;border:1.5px solid var(--border);background:var(--surface-up);padding:24px;box-shadow:0 8px 32px rgba(0,0,0,.3)}.code-file{font-family:monospace;font-size:11px;color:var(--text-muted);margin-bottom:14px}.code-line{display:flex;gap:16px;font-family:monospace;font-size:13px;color:var(--text-sec);line-height:2.1}.code-ln{color:var(--text-muted);min-width:16px;font-size:10px;padding-top:2px;user-select:none}');
+      newWin.document.write('.kw{color:#8b5cf6;font-weight:700}.str{color:#10b981}.bool{color:#06b6d4}.key{color:#f59e0b}');
+      newWin.document.write('.svc-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:18px}.svc-card{border-radius:14px;border:1.5px solid var(--border);background:var(--surface-up);padding:24px;transition:all .22s}.svc-icon{font-size:24px;margin-bottom:14px;font-weight:700}.svc-title{font-weight:700;font-size:.95rem;margin-bottom:8px;color:var(--text-prim)}.svc-desc{font-size:13px;color:var(--text-sec);line-height:1.75;margin-bottom:16px}.svc-price{display:inline-block;padding:4px 12px;border-radius:100px;font-weight:700;font-size:12px}');
+      newWin.document.write('.proj-list{display:flex;flex-direction:column;gap:18px}.proj-card{border-radius:14px;border:1.5px solid var(--border);background:var(--surface-up);padding:28px;display:grid;grid-template-columns:150px 1fr;gap:28px}.proj-icon{font-size:36px;margin-bottom:10px}.proj-tag{display:inline-block;padding:3px 10px;border-radius:100px;font-weight:600;font-size:10px;margin-bottom:10px}.proj-name{font-weight:800;font-size:1.1rem;color:var(--text-prim);margin-bottom:10px}.proj-link{font-weight:600;font-size:12px}.proj-meta{display:flex;flex-direction:column;gap:10px}.proj-row{padding:12px 16px;border-radius:10px}.proj-lbl{font-weight:700;font-size:10px;margin-bottom:5px;text-transform:uppercase;letter-spacing:.08em}.proj-txt{font-size:.88rem;color:var(--text-sec);line-height:1.75}');
+      newWin.document.write('.why-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px}.why-card{border-radius:14px;border:1.5px solid var(--border);background:var(--surface-up);padding:24px;transition:all .22s}.why-card:hover{transform:translateY(-4px);border-color:rgba(59,130,246,.3);box-shadow:0 12px 32px rgba(0,0,0,.3)}.why-icon{font-size:24px;margin-bottom:12px}.why-title{font-weight:700;font-size:.9rem;margin-bottom:8px;color:var(--text-prim)}.why-desc{font-size:13px;color:var(--text-sec);line-height:1.75}');
+      newWin.document.write('.testi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px}.testi-card{border-radius:14px;border:1.5px solid var(--border);background:var(--surface-up);padding:28px}.testi-stars{color:#fbbf24;font-size:16px;margin-bottom:14px;letter-spacing:3px}.testi-text{font-size:.95rem;color:var(--text-sec);line-height:1.85;margin-bottom:20px}.testi-divider{border-top:1px solid var(--border);padding-top:16px}.testi-name{font-weight:700;font-size:13px;color:var(--text-prim)}.testi-role{font-size:11px;color:var(--text-muted);margin-top:4px}');
+      newWin.document.write('.contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:start}.contact-links{display:flex;flex-direction:column;gap:12px;margin-bottom:22px}.contact-link{display:flex;align-items:center;gap:12px;color:var(--text-sec);font-size:14px;padding:11px 14px;border-radius:10px;background:var(--surface-up);border:1.5px solid var(--border);transition:all .2s}.contact-link:hover{background:rgba(59,130,246,.08);border-color:rgba(59,130,246,.3);color:var(--text-prim)}.contact-link-icon{font-size:17px}');
+      newWin.document.write('.wa-cta{padding:12px 24px;border-radius:10px;border:none;background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff;font-weight:700;font-size:14px;cursor:pointer;box-shadow:0 4px 16px rgba(34,197,94,.3)}');
+      newWin.document.write('.form-box{background:var(--surface-up);border-radius:14px;border:1.5px solid var(--border);padding:28px}.form-title{font-weight:700;font-size:15px;color:var(--text-prim);margin-bottom:20px}.form-group{display:flex;flex-direction:column;gap:16px}.form-label{font-weight:600;font-size:11px;color:var(--text-muted);display:block;margin-bottom:6px;text-transform:uppercase;letter-spacing:.07em}.form-input,.form-textarea{width:100%;padding:12px 14px;border-radius:10px;font-size:14px;background:var(--bg);border:1.5px solid var(--border);color:var(--text-prim);font-family:var(--font);outline:none;transition:border-color .2s}.form-input:focus,.form-textarea:focus{border-color:var(--accent)}.form-textarea{min-height:100px;resize:vertical}.form-submit{padding:14px;border-radius:10px;border:none;background:linear-gradient(135deg,#1d4ed8,#06b6d4);color:#fff;font-family:var(--font);font-weight:700;font-size:14px;cursor:pointer;transition:all .3s;box-shadow:0 4px 20px rgba(29,78,216,.3);width:100%}.form-submit:hover{opacity:.9;transform:translateY(-1px)}');
+      newWin.document.write('.grad-text{background:linear-gradient(90deg,#3b82f6,#06b6d4);-webkit-background-clip:text;-webkit-text-fill-color:transparent}');
+      newWin.document.write('.stat-num{font-weight:800;font-size:2rem;color:var(--accent);line-height:1}.stat-lbl{font-size:11px;color:var(--text-muted);margin-top:6px;font-weight:500}');
+      newWin.document.write('.btn-primary{padding:14px 32px;border-radius:10px;border:none;background:linear-gradient(135deg,#1d4ed8,#06b6d4);color:#fff;font-weight:700;font-size:14px;transition:all .25s;box-shadow:0 4px 20px rgba(29,78,216,.35);cursor:pointer}.btn-primary:hover{transform:translateY(-2px);box-shadow:0 10px 32px rgba(29,78,216,.5)}');
+      newWin.document.write('.footer-sig{border-top:1px solid var(--border);padding:20px 40px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;background:var(--bg);margin-top:48px}.footer-brand{display:flex;align-items:center;gap:10px}.footer-logo{width:28px;height:28px;border-radius:6px;background:linear-gradient(135deg,#1d4ed8,#06b6d4);display:flex;align-items:center;justify-content:center}.footer-logo svg{width:17px;height:17px}.footer-name{font-weight:800;font-size:13px;color:var(--text-prim)}.footer-role{font-family:monospace;font-size:9px;color:var(--text-muted);letter-spacing:.1em;margin-top:1px}.footer-right{font-size:11px;color:var(--text-muted);text-align:right}.footer-right .ac{color:var(--accent);font-weight:600}');
+      newWin.document.write('@media(max-width:700px){.about-grid,.contact-grid{grid-template-columns:1fr}.proj-card{grid-template-columns:1fr}.panel-body{padding:28px 18px}.topbar{padding:0 16px}}');
+      newWin.document.write('</style></head><body>');
+      newWin.document.write('<header class="topbar"><div class="brand-wrap"><div class="logo-mark"><svg viewBox="0 0 24 24" fill="none"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" fill="white"/></svg></div><div><div class="brand-name">SmartLaunch</div><div class="brand-sub">Chinmay Joshi \u00B7 Web Development</div></div></div><button class="back-btn" onclick="window.close()">\u2190 Back to Home</button></header>');
+      newWin.document.write('<div class="panel-body" id="content"></div>');
+      newWin.document.write('<footer class="footer-sig"><div class="footer-brand"><div class="footer-logo"><svg viewBox="0 0 24 24" fill="none"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" fill="white"/></svg></div><div><div class="footer-name">Chinmay Joshi</div><div class="footer-role">FOUNDER \u00B7 SMARTLAUNCH</div></div></div><div class="footer-right"><span class="ac">Full-Stack Web Developer</span><span style="margin:0 8px;color:#1e1e2e">\u00B7</span><span>&copy; ' + new Date().getFullYear() + ' SmartLaunch</span></div></footer>');
+      newWin.document.write('</body></html>');
+      newWin.document.close();
+
+      // Inject the section HTML into the new window's content div safely
+      newWin.onload = function() {
+        const el = newWin.document.getElementById('content');
+        if (el) el.innerHTML = sectionHtml;
+        // Wire up contact form if needed
+        const cf = newWin.document.getElementById('contact-form');
+        if (cf) cf.addEventListener('submit', function(e) {
+          e.preventDefault();
+          const btn = newWin.document.getElementById('form-submit-btn');
+          btn.textContent = "\u2713 Sent! I'll reply within 24h";
+          btn.style.background = 'linear-gradient(135deg,#10b981,#059669)';
+          e.target.reset();
+          setTimeout(function() {
+            btn.textContent = 'Send Message \u2192';
+            btn.style.background = 'linear-gradient(135deg,#1d4ed8,#06b6d4)';
+          }, 4000);
+        });
+      };
+      // Fallback if onload already fired (same-origin)
+      try {
+        const el = newWin.document.getElementById('content');
+        if (el) {
+          el.innerHTML = sectionHtml;
+          const cf = newWin.document.getElementById('contact-form');
+          if (cf) cf.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const btn = newWin.document.getElementById('form-submit-btn');
+            btn.textContent = "\u2713 Sent! I'll reply within 24h";
+            btn.style.background = 'linear-gradient(135deg,#10b981,#059669)';
+            e.target.reset();
+            setTimeout(function() {
+              btn.textContent = 'Send Message \u2192';
+              btn.style.background = 'linear-gradient(135deg,#1d4ed8,#06b6d4)';
+            }, 4000);
+          });
+        }
+      } catch(e) {}
+    }
+
+    function openPanel(id) {
+      activeSection = id;
+      // update sidebar active state
+      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+      const active = document.getElementById('nav-' + id);
+      if (active) active.classList.add('active');
+
+      document.getElementById('panel-section-label').textContent = id.toUpperCase();
+      document.getElementById('panel-body').innerHTML = renderSection(id);
+      document.getElementById('panel').className = 'open slide-in';
+      document.body.style.overflow = 'hidden';
+
+      // re-set year in panel footer
+      document.querySelectorAll('.footer-year-inner').forEach(el => el.textContent = new Date().getFullYear());
+
+      // attach form submit if contact
+      if (id === 'contact') {
+        document.getElementById('contact-form').addEventListener('submit', handleFormSubmit);
+      }
+    }
+
+    function closePanel() {
+      document.getElementById('panel').className = '';
+      document.body.style.overflow = '';
+    }
+
+    // ── SECTION RENDERERS ────────────────────────────────────────────────────
+    function renderSection(id) {
+      switch(id) {
+        case 'home':         return renderHome();
+        case 'about':        return renderAbout();
+        case 'services':     return renderServices();
+        case 'portfolio':    return renderPortfolio();
+        case 'why':          return renderWhy();
+        case 'testimonials': return renderTestimonials();
+        case 'contact':      return renderContact();
+        default: return '';
+      }
+    }
+
+    function renderHome() {
+      const d = DATA.home;
+      return `
+        <div style="font-family:monospace;font-size:11px;color:var(--accent);letter-spacing:.15em;margin-bottom:16px;text-transform:uppercase;">Welcome to SmartLaunch</div>
+        <h1 style="font-weight:800;font-size:clamp(2rem,5vw,3.5rem);line-height:1.12;margin-bottom:16px;color:var(--text-prim);letter-spacing:-.02em;">
+          I Build Websites That<br><span class="grad-text">Bring You Customers</span>
+        </h1>
+        <p style="font-size:1.05rem;color:var(--text-sec);line-height:1.85;max-width:520px;margin-bottom:36px;">${d.body}</p>
+        <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:52px;">
+          <button class="btn-primary" onclick="closePanel()">Start Your Project →</button>
+        </div>
+        <div style="display:flex;gap:48px;flex-wrap:wrap;">
+          ${d.stats.map(([n,l]) => `<div><div class="stat-num">${n}</div><div class="stat-lbl">${l}</div></div>`).join('')}
+        </div>`;
+    }
+
+    function renderAbout() {
+      const d = DATA.about;
+      const codeLines = [
+        `<span class="kw">const</span> chinmay = {`,
+        `  role: <span class="str">"Full-Stack Developer"</span>,`,
+        `  company: <span class="str">"SmartLaunch"</span>,`,
+        `  skills: [<span class="str">"design"</span>,<span class="str">"dev"</span>,<span class="str">"deploy"</span>],`,
+        `  delivery: <span class="str">"3–7 days"</span>,`,
+        `  quality: <span class="str">"premium"</span>,`,
+        `  <span class="key">available</span>: <span class="bool">true</span>`,
+        `};`,
+      ];
+      return `
+        <div class="about-grid">
+          <div>
+            <div class="section-eye">About Me</div>
+            <h2 class="section-h2" style="margin-bottom:6px;">Chinmay Joshi</h2>
+            <div class="about-role">${d.role}</div>
+            <p class="about-bio">${d.bio}</p>
+            <div class="skills-label">Tech Stack</div>
+            <div class="skills-wrap">${d.skills.map(s=>`<span class="skill-tag">${s}</span>`).join('')}</div>
+          </div>
+          <div class="code-block">
+            <div class="code-file">// profile.js</div>
+            ${codeLines.map((l,i) => `<div class="code-line"><span class="code-ln">${i+1}</span><span>${l}</span></div>`).join('')}
+          </div>
+        </div>`;
+    }
+
+    function renderServices() {
+      return `
+        <div class="section-eye">Services</div>
+        <h2 class="section-h2">What I Build For You</h2>
+        <p class="section-p">End-to-end web solutions for small businesses and individuals.</p>
+        <div class="svc-grid">
+          ${DATA.services.map(s => `
+            <div class="svc-card" onmouseenter="this.style.transform='translateY(-4px)';this.style.boxShadow='0 12px 32px rgba(0,0,0,.4)';this.style.borderColor='${s.color}40'" onmouseleave="this.style.transform='';this.style.boxShadow='';this.style.borderColor='var(--border)'">
+              <div class="svc-icon" style="color:${s.color}">${s.icon}</div>
+              <div class="svc-title">${s.title}</div>
+              <div class="svc-desc">${s.desc}</div>
+              <div class="svc-price" style="background:${s.color}18;border:1.5px solid ${s.color}30;color:${s.color}">${s.price}</div>
+            </div>`).join('')}
+        </div>`;
+    }
+
+    function renderPortfolio() {
+      return `
+        <div class="section-eye">Portfolio</div>
+        <h2 class="section-h2">Real Projects. Real Results.</h2>
+        <p class="section-p">Every project is a case study in solving business problems with code.</p>
+        <div class="proj-list">
+          ${DATA.portfolio.map(p => `
+            <div class="proj-card">
+              <div>
+                <div class="proj-icon">${p.icon}</div>
+                <div class="proj-tag" style="background:${p.color}18;border:1.5px solid ${p.color}30;color:${p.color}">${p.tag}</div>
+                <div class="proj-name">${p.name}</div>
+                ${p.url !== '#' ? `<a href="${p.url}" target="_blank" rel="noreferrer" class="proj-link" style="color:${p.color}">View Live ↗</a>` : ''}
+              </div>
+              <div class="proj-meta">
+                ${[['Problem',p.problem,'#f59e0b'],['Solution',p.solution,'#3b82f6'],['Result',p.result,'#10b981']].map(([lbl,txt,col]) => `
+                  <div class="proj-row" style="background:${col}08;border-left:3px solid ${col}50">
+                    <div class="proj-lbl" style="color:${col}">${lbl}</div>
+                    <div class="proj-txt">${txt}</div>
+                  </div>`).join('')}
+              </div>
+            </div>`).join('')}
+        </div>`;
+    }
+
+    function renderWhy() {
+      return `
+        <div class="section-eye">Why Choose Me</div>
+        <h2 class="section-h2">Why Clients Choose SmartLaunch</h2>
+        <p class="section-p">Over big agencies that charge 10× more and deliver months later.</p>
+        <div class="why-grid">
+          ${DATA.why.map(w => `
+            <div class="why-card">
+              <div class="why-icon">${w.icon}</div>
+              <div class="why-title">${w.title}</div>
+              <div class="why-desc">${w.desc}</div>
+            </div>`).join('')}
+        </div>`;
+    }
+
+    function renderTestimonials() {
+      return `
+        <div class="section-eye">Client Reviews</div>
+        <h2 class="section-h2">What Clients Say</h2>
+        <p class="section-p">Real feedback from real people who trusted SmartLaunch.</p>
+        <div class="testi-grid">
+          ${DATA.testimonials.map(t => `
+            <div class="testi-card">
+              <div class="testi-stars">${'★'.repeat(t.rating)}</div>
+              <p class="testi-text">"${t.text}"</p>
+              <div class="testi-divider">
+                <div class="testi-name">${t.name}</div>
+                <div class="testi-role">${t.role}</div>
+              </div>
+            </div>`).join('')}
+        </div>`;
+    }
+
+    function renderContact() {
+      const d = DATA.contact;
+      const waUrl = `https://wa.me/91${d.whatsapp}?text=${encodeURIComponent("Hi Chinmay! I'd like to discuss a web project.")}`;
+      return `
+        <div class="contact-grid">
+          <div>
+            <div class="section-eye">Contact</div>
+            <h2 class="section-h2" style="margin-bottom:14px;">Let's Build<br><span class="grad-text">Something Great</span></h2>
+            <p style="color:var(--text-sec);line-height:1.85;margin-bottom:32px;font-size:15px;">Tell me about your project. I'll reply within 24 hours with a plan and price.</p>
+            <div class="contact-links">
+              <a href="mailto:${d.email}" class="contact-link"><span class="contact-link-icon">📧</span>${d.email}</a>
+              <a href="${waUrl}" target="_blank" rel="noreferrer" class="contact-link"><span class="contact-link-icon">💬</span>WhatsApp: ${d.phone}</a>
+              <a href="${d.linkedin}" target="_blank" rel="noreferrer" class="contact-link"><span class="contact-link-icon">🔗</span>LinkedIn Profile</a>
+            </div>
+            <a href="${waUrl}" target="_blank" rel="noreferrer">
+              <button class="wa-cta">💬 Chat on WhatsApp</button>
+            </a>
+          </div>
+          <div class="form-box">
+            <div class="form-title">Send a Message</div>
+            <form id="contact-form">
+              <div class="form-group">
+                <div>
+                  <label class="form-label">Your Name</label>
+                  <input class="form-input" type="text" placeholder="Rajesh Sharma" required />
+                </div>
+                <div>
+                  <label class="form-label">Email Address</label>
+                  <input class="form-input" type="email" placeholder="you@business.com" required />
+                </div>
+                <div>
+                  <label class="form-label">What Do You Need?</label>
+                  <textarea class="form-textarea" placeholder="Tell me about your business and what kind of website you need..." required></textarea>
+                </div>
+                <button type="submit" class="form-submit" id="form-submit-btn">Send Message →</button>
+              </div>
+            </form>
+          </div>
+        </div>`;
+    }
+
+    function handleFormSubmit(e) {
+      e.preventDefault();
+      const btn = document.getElementById('form-submit-btn');
+      btn.textContent = '✓ Sent! I\'ll reply within 24h';
+      btn.style.background = 'linear-gradient(135deg,#10b981,#059669)';
+      e.target.reset();
+      setTimeout(() => {
+        btn.textContent = 'Send Message →';
+        btn.style.background = 'linear-gradient(135deg,#1d4ed8,#06b6d4)';
+      }, 4000);
+    }
+  </script>
+</body>
+</html>
