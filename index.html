@@ -564,7 +564,7 @@
   <!-- ══ SIDEBAR DRAWER ══ -->
   <aside id="sidebar">
     <div class="sidebar-header" style="cursor:default;">
-      <div class="logo-mark" id="owner-logo-trigger" onclick="handleLogoClick()" style="cursor:pointer;" title="">
+      <div class="logo-mark">
         <svg viewBox="0 0 24 24" fill="none"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" fill="white"/></svg>
       </div>
       <div>
@@ -589,7 +589,6 @@
         <button class="wa-btn">💬 Chat on WhatsApp</button>
       </a>
       <button class="logout-btn" id="logout-btn" onclick="logoutUser()">🚪 Sign Out</button>
-      <button id="owner-nav-btn" onclick="openOwnerDash()" style="display:none;width:100%;padding:9px 14px;border-radius:10px;border:1.5px solid rgba(59,130,246,.3);background:rgba(59,130,246,.08);color:var(--accent);font-size:12px;font-weight:700;font-family:var(--font);cursor:pointer;margin-top:4px;">⚙ Owner Dashboard</button>
     </div>
   </aside>
 
@@ -652,7 +651,7 @@
     <section id="quick-cards"></section>
 
     <footer class="footer-sig">
-      <div class="footer-brand">
+      <div class="footer-brand" id="owner-footer-trigger" onclick="handleLogoClick()" style="cursor:default;user-select:none;">
         <div class="footer-logo"><svg viewBox="0 0 24 24" fill="none"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" fill="white"/></svg></div>
         <div>
           <div class="footer-name">Chinmay Joshi</div>
@@ -1042,10 +1041,6 @@
   function handleLogoClick() {
     logoClickCount++;
     clearTimeout(logoClickTimer);
-    // Flash logo to give feedback
-    const logo = document.getElementById('owner-logo-trigger');
-    logo.style.transform = 'scale(1.2)';
-    setTimeout(() => logo.style.transform = '', 150);
     if (logoClickCount >= 5) {
       logoClickCount = 0;
       clearTimeout(logoClickTimer);
@@ -1067,7 +1062,6 @@
     document.getElementById('owner-page').className = 'page';
     document.body.style.overflow = '';
     ownerAuthed = false;
-    document.getElementById('owner-nav-btn').style.display = 'none';
     logoClickCount = 0;
   }
 
@@ -1120,7 +1114,6 @@
     const msg   = document.getElementById('dash-auth-msg');
     if (uname === OWNER_CREDS.username && pass === OWNER_CREDS.password) {
       ownerAuthed = true;
-      document.getElementById('owner-nav-btn').style.display = 'block';
       renderDashboard();
     } else {
       msg.className = 'auth-msg error';
