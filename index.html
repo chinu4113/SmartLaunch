@@ -8,20 +8,13 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-  <!-- EmailJS SDK -->
-  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
   <script>
-    // ── EMAILJS CONFIG ──
-    const EMAILJS_CONFIG = {
-      publicKey:       'nrDPF2WxXE3vlEoRX',
-      serviceId:       'service_lkzl8tu',
-      templateAuth:    'template_kd8devh',   // login / register notifications
-      templateBooking: 'template_0sul3wc',   // contact / booking messages
-      ownerEmail:      'chinmaywebstudio@gmail.com',
+    // ── WEB3FORMS CONFIG ──
+    const W3F_CONFIG = {
+      accessKey:  'aba77576-35e8-4409-b84a-e9bf0e0d9b89',
+      ownerEmail: 'chinmaywebstudio@gmail.com',
+      endpoint:   'https://api.web3forms.com/submit',
     };
-    // Template variables used in your EmailJS templates:
-    // Auth template    (template_kd8devh):  {{to_email}}, {{event_type}}, {{user_name}}, {{user_email}}, {{timestamp}}
-    // Booking template (template_0sul3wc):  {{to_email}}, {{client_name}}, {{client_email}}, {{message}}, {{timestamp}}
   </script>
 
   <style>
@@ -863,38 +856,49 @@
   }
 
   // ══════════════════════════════════════════════════════════════════════════════
-  //  EMAILJS HELPERS
+  //  WEB3FORMS HELPERS
   // ══════════════════════════════════════════════════════════════════════════════
-  function initEmailJS() {
-    if (EMAILJS_CONFIG.publicKey && EMAILJS_CONFIG.publicKey !== 'YOUR_PUBLIC_KEY') {
-      emailjs.init({ publicKey: EMAILJS_CONFIG.publicKey });
-    }
-  }
+  function initEmailJS() { /* no-op — Web3Forms needs no init */ }
 
   async function sendAuthEmail(eventType, userName, userEmail) {
-    if (!EMAILJS_CONFIG.publicKey || EMAILJS_CONFIG.publicKey === 'YOUR_PUBLIC_KEY') return;
     try {
-      await emailjs.send(EMAILJS_CONFIG.serviceId, EMAILJS_CONFIG.templateAuth, {
-        to_email:   EMAILJS_CONFIG.ownerEmail,
-        event_type: eventType,          // 'New Login' or 'New Registration'
-        user_name:  userName,
-        user_email: userEmail,
-        timestamp:  new Date().toLocaleString('en-IN', { timeZone:'Asia/Kolkata' }),
+      const timestamp = new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' });
+      await fetch(W3F_CONFIG.endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify({
+          access_key: W3F_CONFIG.accessKey,
+          subject:    `SmartLaunch — ${eventType}`,
+          from_name:  'SmartLaunch Notifications',
+          message:
+            `Event: ${eventType}\n` +
+            `Name: ${userName}\n` +
+            `Email: ${userEmail}\n` +
+            `Time: ${timestamp}`,
+        }),
       });
-    } catch(e) { console.warn('EmailJS auth email failed:', e); }
+    } catch(e) { console.warn('Web3Forms auth email failed:', e); }
   }
 
   async function sendBookingEmail(clientName, clientEmail, message) {
-    if (!EMAILJS_CONFIG.publicKey || EMAILJS_CONFIG.publicKey === 'YOUR_PUBLIC_KEY') return;
-    try {
-      await emailjs.send(EMAILJS_CONFIG.serviceId, EMAILJS_CONFIG.templateBooking, {
-        to_email:    EMAILJS_CONFIG.ownerEmail,
-        client_name: clientName,
-        client_email:clientEmail,
-        message:     message,
-        timestamp:   new Date().toLocaleString('en-IN', { timeZone:'Asia/Kolkata' }),
-      });
-    } catch(e) { console.warn('EmailJS booking email failed:', e); }
+    const timestamp = new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' });
+    const res = await fetch(W3F_CONFIG.endpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify({
+        access_key:   W3F_CONFIG.accessKey,
+        subject:      `SmartLaunch — New Project Enquiry from ${clientName}`,
+        from_name:    clientName,
+        email:        clientEmail,
+        message:
+          `Name: ${clientName}\n` +
+          `Email: ${clientEmail}\n` +
+          `Time: ${timestamp}\n\n` +
+          `Message:\n${message}`,
+      }),
+    });
+    const data = await res.json();
+    if (!data.success) throw new Error(data.message || 'Web3Forms submission failed');
   }
 
   // ══════════════════════════════════════════════════════════════════════════════
@@ -1307,11 +1311,12 @@
         }, 100);
       }
     } catch(err) {
-      // Even if EmailJS fails, show success (email may not be configured yet)
-      msgEl.className = 'form-msg success';
-      msgEl.textContent = '✓ Message received! Chinmay will reply within 24 hours.';
-      btn.textContent = '✓ Done!';
-      btn.style.background = 'linear-gradient(135deg,#10b981,#059669)';
+      msgEl.className = 'form-msg error';
+      msgEl.textContent = '✗ Failed to send. Please try WhatsApp or email directly.';
+      btn.disabled = false;
+      btn.textContent = 'Send Message →';
+      btn.style.background = '';
+      return;
     }
 
     setTimeout(() => {
