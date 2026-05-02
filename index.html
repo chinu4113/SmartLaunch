@@ -15,6 +15,18 @@
       ownerEmail: 'chinmaywebstudio@gmail.com',
       endpoint:   'https://api.web3forms.com/submit',
     };
+
+    // ── SUPABASE CONFIG ──
+    // 1. Go to https://supabase.com → New Project
+    // 2. Settings → API → copy "Project URL" and "anon public" key below
+    // 3. Run the SQL in supabase_setup.sql (provided separately) to create tables
+    const SB = {
+      url:    'https://jrlmzzjcbqjinbymbydg.supabase.co',
+      anonKey:'sb_publishable_Xk4Xc4u4P2S1eK-01Hz1rA_bN957wt0',
+      // Owner dashboard password — change this!
+      ownerPass: 'smartlaunch@owner2024',
+    };
+    const SB_READY = SB.url !== 'YOUR_SUPABASE_URL';
   </script>
 
   <style>
@@ -482,6 +494,48 @@
     }
     #wa-fab:hover { transform:scale(1.1); }
 
+    /* ── OWNER DASHBOARD ── */
+    .dash-login-wrap { min-height:calc(100vh - 64px); display:flex; align-items:center; justify-content:center; padding:40px 20px; }
+    .dash-login-card { width:100%; max-width:380px; background:var(--surface); border:1.5px solid var(--border); border-radius:18px; padding:36px; box-shadow:0 24px 64px rgba(0,0,0,.5); }
+    .dash-login-icon { font-size:36px; text-align:center; margin-bottom:16px; }
+    .dash-login-title { font-weight:800; font-size:1.3rem; color:var(--text-prim); text-align:center; margin-bottom:6px; }
+    .dash-login-sub { font-size:13px; color:var(--text-muted); text-align:center; margin-bottom:28px; }
+
+    .dash-wrap { padding:32px 5%; }
+    .dash-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:28px; flex-wrap:wrap; gap:12px; }
+    .dash-title { font-weight:800; font-size:1.4rem; color:var(--text-prim); }
+    .dash-subtitle { font-size:13px; color:var(--text-muted); margin-top:3px; }
+    .dash-logout { padding:8px 18px; border-radius:8px; border:1.5px solid rgba(239,68,68,.3); background:rgba(239,68,68,.08); color:#f87171; font-size:12px; font-weight:700; font-family:var(--font); cursor:pointer; transition:all .2s; }
+    .dash-logout:hover { background:rgba(239,68,68,.18); }
+
+    .dash-stats { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:14px; margin-bottom:32px; }
+    .dash-stat { background:var(--surface-up); border:1.5px solid var(--border); border-radius:14px; padding:20px; }
+    .dash-stat-num { font-weight:800; font-size:2rem; color:var(--accent); line-height:1; }
+    .dash-stat-lbl { font-size:11px; color:var(--text-muted); margin-top:6px; font-weight:600; text-transform:uppercase; letter-spacing:.07em; }
+
+    .dash-section { margin-bottom:36px; }
+    .dash-section-title { font-weight:700; font-size:.95rem; color:var(--text-prim); margin-bottom:14px; display:flex; align-items:center; gap:8px; }
+    .dash-badge { font-size:10px; padding:3px 9px; border-radius:100px; font-weight:700; }
+    .dash-badge-blue { background:rgba(59,130,246,.15); color:var(--accent); border:1px solid rgba(59,130,246,.25); }
+    .dash-badge-green { background:rgba(16,185,129,.15); color:#10b981; border:1px solid rgba(16,185,129,.25); }
+    .dash-badge-purple { background:rgba(139,92,246,.15); color:#8b5cf6; border:1px solid rgba(139,92,246,.25); }
+
+    .dash-table-wrap { overflow-x:auto; border-radius:12px; border:1.5px solid var(--border); }
+    .dash-table { width:100%; border-collapse:collapse; font-size:13px; }
+    .dash-table th { background:var(--surface-up); color:var(--text-muted); font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.08em; padding:12px 16px; text-align:left; white-space:nowrap; }
+    .dash-table td { padding:12px 16px; border-top:1px solid var(--border); color:var(--text-sec); vertical-align:top; max-width:260px; word-break:break-word; }
+    .dash-table tr:hover td { background:rgba(255,255,255,.02); }
+    .dash-table td.td-name { font-weight:600; color:var(--text-prim); white-space:nowrap; }
+    .dash-table td.td-email { color:var(--accent); font-family:monospace; font-size:12px; }
+    .dash-table td.td-msg { font-size:12px; line-height:1.6; color:var(--text-muted); }
+    .dash-table td.td-time { font-size:11px; color:var(--text-muted); white-space:nowrap; font-family:monospace; }
+    .dash-empty { padding:32px; text-align:center; color:var(--text-muted); font-size:13px; }
+    .dash-loading { padding:24px; text-align:center; color:var(--text-muted); font-size:13px; }
+    .dash-event-login { color:#10b981; font-size:11px; font-weight:700; }
+    .dash-event-reg { color:#8b5cf6; font-size:11px; font-weight:700; }
+    .dash-setup-banner { background:rgba(245,158,11,.08); border:1.5px solid rgba(245,158,11,.3); border-radius:12px; padding:18px 20px; margin-bottom:24px; color:#fbbf24; font-size:13px; line-height:1.7; }
+    .dash-setup-banner code { background:rgba(245,158,11,.15); padding:2px 7px; border-radius:5px; font-family:monospace; font-size:12px; }
+
     /* ── RESPONSIVE ── */
     @media (max-width: 700px) {
       .about-grid, .contact-grid { grid-template-columns:1fr; }
@@ -535,6 +589,7 @@
         <button class="wa-btn">💬 Chat on WhatsApp</button>
       </a>
       <button class="logout-btn" id="logout-btn" onclick="logoutUser()">🚪 Sign Out</button>
+      <button onclick="openOwnerDash()" style="width:100%;padding:8px 14px;border-radius:10px;border:1px solid var(--border);background:transparent;color:var(--text-muted);font-size:11px;font-weight:600;font-family:var(--font);cursor:pointer;margin-top:2px;letter-spacing:.05em;">⚙ OWNER ACCESS</button>
     </div>
   </aside>
 
@@ -747,6 +802,23 @@
     </div>
   </div>
 
+  <!-- ══ OWNER DASHBOARD PAGE ══ -->
+  <div class="page" id="owner-page">
+    <div class="page-topbar">
+      <div class="page-brand">
+        <div class="page-logo"><svg viewBox="0 0 24 24" fill="none"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" fill="white"/></svg></div>
+        <div>
+          <div class="page-title">SmartLaunch</div>
+          <div class="page-sub">Owner Dashboard</div>
+        </div>
+      </div>
+      <div class="page-right">
+        <button class="close-btn" onclick="closeOwnerDash()" title="Close">✕</button>
+      </div>
+    </div>
+    <div id="owner-body"></div>
+  </div>
+
   <!-- ══ WHATSAPP FAB ══ -->
   <a id="wa-fab" href="https://wa.me/918830613791?text=Hi%20Chinmay!%20I%20visited%20SmartLaunch%20and%20I%27d%20like%20to%20discuss%20a%20project." target="_blank" rel="noreferrer" class="pulse-green">💬</a>
 
@@ -763,6 +835,7 @@
     { id:"testimonials", label:"Reviews",      icon:"◎",  auth:false },
     { id:"contact",      label:"Contact",      icon:"✉",  auth:false },
     { id:"login",        label:"Sign In",      icon:"🔐", auth:'guest' }, // only for guests
+    { id:"owner",        label:"Owner Dashboard", icon:"⚙️", auth:'owner' }, // hidden — accessible only via URL or secret tap
   ];
 
   const DATA = {
@@ -911,6 +984,252 @@
     } catch(e) { console.warn('Web3Forms welcome email failed:', e); }
   }
 
+  // ══════════════════════════════════════════════════════════════════════════════
+  //  SUPABASE HELPERS
+  // ══════════════════════════════════════════════════════════════════════════════
+  async function sbFetch(path, opts = {}) {
+    if (!SB_READY) return null;
+    const res = await fetch(`${SB.url}/rest/v1/${path}`, {
+      ...opts,
+      headers: {
+        'apikey':        SB.anonKey,
+        'Authorization': `Bearer ${SB.anonKey}`,
+        'Content-Type':  'application/json',
+        'Prefer':        opts.prefer || 'return=minimal',
+        ...(opts.headers || {}),
+      },
+    });
+    if (!res.ok) { const e = await res.text(); console.warn('Supabase error:', e); return null; }
+    const text = await res.text();
+    try { return text ? JSON.parse(text) : true; } catch { return true; }
+  }
+
+  async function sbInsertUser(name, email, phone) {
+    return sbFetch('sl_users', {
+      method: 'POST',
+      prefer: 'return=minimal',
+      body: JSON.stringify({ name, email, phone, created_at: new Date().toISOString() }),
+    });
+  }
+
+  async function sbLogActivity(eventType, userName, userEmail) {
+    return sbFetch('sl_activity', {
+      method: 'POST',
+      prefer: 'return=minimal',
+      body: JSON.stringify({ event_type: eventType, user_name: userName, user_email: userEmail, happened_at: new Date().toISOString() }),
+    });
+  }
+
+  async function sbInsertMessage(clientName, clientEmail, message) {
+    return sbFetch('sl_messages', {
+      method: 'POST',
+      prefer: 'return=minimal',
+      body: JSON.stringify({ client_name: clientName, client_email: clientEmail, message, sent_at: new Date().toISOString() }),
+    });
+  }
+
+  async function sbGetAll(table, order) {
+    return sbFetch(`${table}?order=${order}&limit=200`, { method: 'GET', headers: { 'Prefer': 'return=representation' } });
+  }
+
+  // ══════════════════════════════════════════════════════════════════════════════
+  //  OWNER DASHBOARD
+  // ══════════════════════════════════════════════════════════════════════════════
+  let ownerAuthed = false;
+
+  function openOwnerDash() {
+    document.getElementById('owner-page').className = 'page open slide-in';
+    document.body.style.overflow = 'hidden';
+    closeSidebar();
+    renderOwnerBody();
+  }
+
+  function closeOwnerDash() {
+    document.getElementById('owner-page').className = 'page';
+    document.body.style.overflow = '';
+    ownerAuthed = false;
+  }
+
+  function renderOwnerBody() {
+    const el = document.getElementById('owner-body');
+    if (!ownerAuthed) {
+      el.innerHTML = `
+        <div class="dash-login-wrap">
+          <div class="dash-login-card">
+            <div class="dash-login-icon">🔐</div>
+            <div class="dash-login-title">Owner Access</div>
+            <div class="dash-login-sub">Enter your owner password to view the dashboard.</div>
+            <div id="dash-auth-msg"></div>
+            <div class="auth-form" style="margin-top:0;">
+              <div>
+                <label class="form-label">Owner Password</label>
+                <div class="auth-input-wrap">
+                  <span class="auth-input-icon">🔒</span>
+                  <input class="auth-input" type="password" id="owner-pass-input" placeholder="••••••••••••" onkeydown="if(event.key==='Enter')verifyOwner()" />
+                </div>
+              </div>
+              <button class="auth-submit" onclick="verifyOwner()">Unlock Dashboard →</button>
+            </div>
+          </div>
+        </div>`;
+      setTimeout(() => document.getElementById('owner-pass-input')?.focus(), 100);
+      return;
+    }
+    renderDashboard();
+  }
+
+  function verifyOwner() {
+    const val = document.getElementById('owner-pass-input').value;
+    const msg = document.getElementById('dash-auth-msg');
+    if (val === SB.ownerPass) {
+      ownerAuthed = true;
+      renderDashboard();
+    } else {
+      msg.className = 'auth-msg error';
+      msg.textContent = '✗ Incorrect password. Try again.';
+      msg.style.display = 'block';
+    }
+  }
+
+  async function renderDashboard() {
+    const el = document.getElementById('owner-body');
+    el.innerHTML = `<div class="dash-wrap">
+      <div class="dash-header">
+        <div>
+          <div class="dash-title">📊 Owner Dashboard</div>
+          <div class="dash-subtitle">All user data, messages & activity from SmartLaunch</div>
+        </div>
+        <button class="dash-logout" onclick="closeOwnerDash()">✕ Close Dashboard</button>
+      </div>
+      ${!SB_READY ? `<div class="dash-setup-banner">
+        ⚠️ <strong>Supabase not connected yet.</strong> To activate the database:<br>
+        1. Create a free project at <code>supabase.com</code><br>
+        2. Go to <strong>Settings → API</strong> and copy your Project URL &amp; anon key<br>
+        3. Paste them into <code>SB.url</code> and <code>SB.anonKey</code> in this file<br>
+        4. Run the SQL setup script provided to create the 3 tables<br><br>
+        Meanwhile, user data is still stored in <strong>localStorage</strong> on this device.
+      </div>` : ''}
+      <div class="dash-stats" id="dash-stats">
+        <div class="dash-stat"><div class="dash-stat-num" id="stat-users">—</div><div class="dash-stat-lbl">Registered Users</div></div>
+        <div class="dash-stat"><div class="dash-stat-num" id="stat-messages">—</div><div class="dash-stat-lbl">Messages Received</div></div>
+        <div class="dash-stat"><div class="dash-stat-num" id="stat-logins">—</div><div class="dash-stat-lbl">Login Events</div></div>
+        <div class="dash-stat"><div class="dash-stat-num" id="stat-local">—</div><div class="dash-stat-lbl">Local Users (this device)</div></div>
+      </div>
+      <div class="dash-section">
+        <div class="dash-section-title">👥 Registered Users <span class="dash-badge dash-badge-blue" id="badge-users">loading…</span></div>
+        <div class="dash-table-wrap"><div class="dash-loading" id="tbl-users-wrap">Loading…</div></div>
+      </div>
+      <div class="dash-section">
+        <div class="dash-section-title">✉️ Contact Messages <span class="dash-badge dash-badge-green" id="badge-messages">loading…</span></div>
+        <div class="dash-table-wrap"><div class="dash-loading" id="tbl-messages-wrap">Loading…</div></div>
+      </div>
+      <div class="dash-section">
+        <div class="dash-section-title">📋 Login Activity <span class="dash-badge dash-badge-purple" id="badge-activity">loading…</span></div>
+        <div class="dash-table-wrap"><div class="dash-loading" id="tbl-activity-wrap">Loading…</div></div>
+      </div>
+    </div>`;
+
+    // Load local users (always available)
+    const localUsers = getUsers();
+    document.getElementById('stat-local').textContent = localUsers.length;
+
+    if (SB_READY) {
+      const [users, messages, activity] = await Promise.all([
+        sbGetAll('sl_users', 'created_at.desc'),
+        sbGetAll('sl_messages', 'sent_at.desc'),
+        sbGetAll('sl_activity', 'happened_at.desc'),
+      ]);
+
+      // Stats
+      document.getElementById('stat-users').textContent    = users?.length ?? '—';
+      document.getElementById('stat-messages').textContent = messages?.length ?? '—';
+      document.getElementById('stat-logins').textContent   = activity?.filter(a=>a.event_type==='New Login').length ?? '—';
+
+      // Users table
+      document.getElementById('badge-users').textContent = users?.length ?? 0;
+      document.getElementById('tbl-users-wrap').outerHTML = buildUsersTable(users);
+
+      // Messages table
+      document.getElementById('badge-messages').textContent = messages?.length ?? 0;
+      document.getElementById('tbl-messages-wrap').outerHTML = buildMessagesTable(messages);
+
+      // Activity table
+      document.getElementById('badge-activity').textContent = activity?.length ?? 0;
+      document.getElementById('tbl-activity-wrap').outerHTML = buildActivityTable(activity);
+    } else {
+      // Supabase not set up — show local storage data
+      document.getElementById('stat-users').textContent    = localUsers.length;
+      document.getElementById('stat-messages').textContent = 'N/A';
+      document.getElementById('stat-logins').textContent   = 'N/A';
+
+      document.getElementById('badge-users').textContent = localUsers.length;
+      document.getElementById('tbl-users-wrap').outerHTML = buildLocalUsersTable(localUsers);
+      document.getElementById('tbl-messages-wrap').outerHTML = `<div class="dash-empty">Connect Supabase to track messages.</div>`;
+      document.getElementById('tbl-activity-wrap').outerHTML = `<div class="dash-empty">Connect Supabase to track login activity.</div>`;
+    }
+  }
+
+  function fmtTime(iso) {
+    if (!iso) return '—';
+    return new Date(iso).toLocaleString('en-IN', { timeZone:'Asia/Kolkata', day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' });
+  }
+
+  function buildUsersTable(rows) {
+    if (!rows?.length) return `<div class="dash-empty">No registered users yet.</div>`;
+    return `<table class="dash-table">
+      <thead><tr><th>#</th><th>Name</th><th>Email</th><th>Phone</th><th>Joined</th></tr></thead>
+      <tbody>${rows.map((u,i)=>`<tr>
+        <td style="color:var(--text-muted);font-size:11px;">${i+1}</td>
+        <td class="td-name">${u.name||'—'}</td>
+        <td class="td-email">${u.email||'—'}</td>
+        <td>${u.phone||'—'}</td>
+        <td class="td-time">${fmtTime(u.created_at)}</td>
+      </tr>`).join('')}</tbody>
+    </table>`;
+  }
+
+  function buildLocalUsersTable(rows) {
+    if (!rows?.length) return `<div class="dash-empty">No users registered on this device yet.</div>`;
+    return `<table class="dash-table">
+      <thead><tr><th>#</th><th>Name</th><th>Email</th><th>Phone</th><th>Joined</th></tr></thead>
+      <tbody>${rows.map((u,i)=>`<tr>
+        <td style="color:var(--text-muted);font-size:11px;">${i+1}</td>
+        <td class="td-name">${u.name||'—'}</td>
+        <td class="td-email">${u.email||'—'}</td>
+        <td>${u.phone||'—'}</td>
+        <td class="td-time">${fmtTime(u.createdAt)}</td>
+      </tr>`).join('')}</tbody>
+    </table>`;
+  }
+
+  function buildMessagesTable(rows) {
+    if (!rows?.length) return `<div class="dash-empty">No messages received yet.</div>`;
+    return `<table class="dash-table">
+      <thead><tr><th>#</th><th>Name</th><th>Email</th><th>Message</th><th>Time</th></tr></thead>
+      <tbody>${rows.map((m,i)=>`<tr>
+        <td style="color:var(--text-muted);font-size:11px;">${i+1}</td>
+        <td class="td-name">${m.client_name||'—'}</td>
+        <td class="td-email">${m.client_email||'—'}</td>
+        <td class="td-msg">${(m.message||'').substring(0,120)}${m.message?.length>120?'…':''}</td>
+        <td class="td-time">${fmtTime(m.sent_at)}</td>
+      </tr>`).join('')}</tbody>
+    </table>`;
+  }
+
+  function buildActivityTable(rows) {
+    if (!rows?.length) return `<div class="dash-empty">No login activity yet.</div>`;
+    return `<table class="dash-table">
+      <thead><tr><th>#</th><th>Event</th><th>Name</th><th>Email</th><th>Time</th></tr></thead>
+      <tbody>${rows.map((a,i)=>`<tr>
+        <td style="color:var(--text-muted);font-size:11px;">${i+1}</td>
+        <td><span class="${a.event_type==='New Login'?'dash-event-login':'dash-event-reg'}">${a.event_type||'—'}</span></td>
+        <td class="td-name">${a.user_name||'—'}</td>
+        <td class="td-email">${a.user_email||'—'}</td>
+        <td class="td-time">${fmtTime(a.happened_at)}</td>
+      </tr>`).join('')}</tbody>
+    </table>`;
+  }
+
   async function sendBookingEmail(clientName, clientEmail, message) {
     const timestamp = new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' });
     const res = await fetch(W3F_CONFIG.endpoint, {
@@ -967,6 +1286,7 @@
       showMsg(msg, 'success', `Welcome back, ${user.name || 'User'}! 👋`);
       sendAuthEmail('New Login', user.name, user.email);
       sendWelcomeEmail(user.name, user.email, false);
+      sbLogActivity('New Login', user.name, user.email);
       saveAuthState({ name: user.name, email: user.email, phone: user.phone });
       setTimeout(() => {
         closePage('login-page');
@@ -1008,6 +1328,8 @@
       showMsg(msg, 'success', `Account created! Welcome, ${name}! 🎉`);
       sendAuthEmail('New Registration', name, email);
       sendWelcomeEmail(name, email, true);
+      sbInsertUser(name, email, phone);
+      sbLogActivity('New Registration', name, email);
       saveAuthState({ name, email, phone });
 
       setTimeout(() => {
@@ -1102,7 +1424,7 @@
   }
 
   document.addEventListener('keydown', e => {
-    if (e.key === 'Escape') { closeSidebar(); closePage('panel-page'); closePage('login-page'); }
+    if (e.key === 'Escape') { closeSidebar(); closePage('panel-page'); closePage('login-page'); closeOwnerDash(); }
   });
 
   function buildSidebarNav() {
@@ -1329,6 +1651,7 @@
 
     try {
       await sendBookingEmail(name, email, msg);
+      sbInsertMessage(name, email, msg);
       msgEl.className = 'form-msg success';
       msgEl.textContent = '✓ Message sent! Chinmay will reply within 24 hours.';
       btn.textContent = '✓ Sent!';
