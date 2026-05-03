@@ -1035,10 +1035,51 @@
 
   async function sendWelcomeEmail(userName, userEmail, isNew) {
     try {
-      await fetch('https://jrlmzzjcbqjinbymbydg.supabase.co/functions/v1/send-welcome-email', {
+      const subject = isNew ? `Welcome to SmartLaunch, ${userName}! 🚀` : `Welcome back to SmartLaunch, ${userName}! 👋`;
+      const htmlContent = isNew ? `
+        <div style="font-family:Arial,sans-serif;max-width:560px;margin:0 auto;background:#0f172a;color:#e2e8f0;border-radius:16px;overflow:hidden;">
+          <div style="background:linear-gradient(135deg,#1d4ed8,#06b6d4);padding:36px 32px;text-align:center;">
+            <div style="font-size:36px;margin-bottom:8px;">⚡</div>
+            <h1 style="margin:0;font-size:24px;color:#fff;">Welcome to SmartLaunch!</h1>
+            <p style="margin:8px 0 0;color:rgba(255,255,255,.8);font-size:14px;">Your account is ready, ${userName} 🎉</p>
+          </div>
+          <div style="padding:32px;">
+            <p style="font-size:15px;line-height:1.7;color:#cbd5e1;">Hi <strong style="color:#fff;">${userName}</strong>, your SmartLaunch account has been created! I am <strong style="color:#fff;">Chinmay Joshi</strong>, founder of SmartLaunch.</p>
+            <div style="background:#1e293b;border-radius:12px;padding:20px;margin:20px 0;">
+              <p style="margin:6px 0;font-size:14px;">📧 <a href="mailto:chinmaywebstudio@gmail.com" style="color:#38bdf8;">chinmaywebstudio@gmail.com</a></p>
+              <p style="margin:6px 0;font-size:14px;">💬 <a href="https://wa.me/918830613791" style="color:#38bdf8;">WhatsApp: +91 8830613791</a></p>
+              <p style="margin:6px 0;font-size:14px;">🔗 <a href="https://www.linkedin.com/in/chinmay-joshi-a22a00358" style="color:#38bdf8;">LinkedIn</a></p>
+            </div>
+            <p style="font-size:14px;color:#64748b;margin-top:24px;">— Chinmay Joshi<br>Founder, SmartLaunch</p>
+          </div>
+        </div>` : `
+        <div style="font-family:Arial,sans-serif;max-width:560px;margin:0 auto;background:#0f172a;color:#e2e8f0;border-radius:16px;overflow:hidden;">
+          <div style="background:linear-gradient(135deg,#1d4ed8,#06b6d4);padding:36px 32px;text-align:center;">
+            <div style="font-size:36px;margin-bottom:8px;">👋</div>
+            <h1 style="margin:0;font-size:24px;color:#fff;">Welcome back!</h1>
+            <p style="margin:8px 0 0;color:rgba(255,255,255,.8);font-size:14px;">Good to see you again, ${userName}</p>
+          </div>
+          <div style="padding:32px;">
+            <p style="font-size:15px;line-height:1.7;color:#cbd5e1;">Hi <strong style="color:#fff;">${userName}</strong>, you have successfully logged in to SmartLaunch.</p>
+            <div style="background:#1e293b;border-radius:12px;padding:20px;margin:20px 0;">
+              <p style="margin:6px 0;font-size:14px;">📧 <a href="mailto:chinmaywebstudio@gmail.com" style="color:#38bdf8;">chinmaywebstudio@gmail.com</a></p>
+              <p style="margin:6px 0;font-size:14px;">💬 <a href="https://wa.me/918830613791" style="color:#38bdf8;">WhatsApp: +91 8830613791</a></p>
+            </div>
+            <p style="font-size:14px;color:#64748b;margin-top:24px;">— Chinmay Joshi<br>Founder, SmartLaunch</p>
+          </div>
+        </div>`;
+      await fetch('https://api.brevo.com/v3/smtp/email', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${SB.anonKey}` },
-        body: JSON.stringify({ userName, userEmail, isNew }),
+        headers: {
+          'Content-Type': 'application/json',
+          'api-key': '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',
+        },
+        body: JSON.stringify({
+          sender:      { name: 'Chinmay Joshi — SmartLaunch', email: 'chinmaywebstudio@gmail.com' },
+          to:          [{ email: userEmail, name: userName }],
+          subject,
+          htmlContent,
+        }),
       });
     } catch(e) { console.warn('Welcome email failed:', e); }
   }
@@ -1483,13 +1524,36 @@
     _otp.code = code;
     _otp.expiresAt = Date.now() + 10 * 60 * 1000; // 10 min
     try {
-      const res = await fetch('https://jrlmzzjcbqjinbymbydg.supabase.co/functions/v1/send-welcome-email', {
+      const res = await fetch('https://api.brevo.com/v3/smtp/email', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${SB.anonKey}` },
-        body: JSON.stringify({ type: 'otp', userName: name, userEmail: email, otpCode: code }),
+        headers: {
+          'Content-Type': 'application/json',
+          'api-key': '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',
+        },
+        body: JSON.stringify({
+          sender:      { name: 'Chinmay Joshi — SmartLaunch', email: 'chinmaywebstudio@gmail.com' },
+          to:          [{ email, name }],
+          subject:     `${code} is your SmartLaunch verification code`,
+          htmlContent: `
+            <div style="font-family:Arial,sans-serif;max-width:480px;margin:0 auto;background:#0f172a;color:#e2e8f0;border-radius:16px;overflow:hidden;">
+              <div style="background:linear-gradient(135deg,#1d4ed8,#06b6d4);padding:32px;text-align:center;">
+                <div style="font-size:32px;margin-bottom:8px;">🔐</div>
+                <h1 style="margin:0;font-size:22px;color:#fff;">Verify your email</h1>
+                <p style="margin:8px 0 0;color:rgba(255,255,255,.8);font-size:14px;">SmartLaunch account verification</p>
+              </div>
+              <div style="padding:32px;text-align:center;">
+                <p style="font-size:15px;color:#cbd5e1;">Hi <strong style="color:#fff;">${name}</strong>, use this code to verify your email:</p>
+                <div style="background:#1e293b;border:2px dashed #3b82f6;border-radius:14px;padding:24px;margin:24px 0;letter-spacing:12px;font-size:38px;font-weight:900;color:#38bdf8;font-family:monospace;">${code}</div>
+                <p style="font-size:13px;color:#64748b;">Expires in <strong style="color:#f87171;">10 minutes</strong>.<br>If you did not request this, ignore this email.</p>
+              </div>
+              <div style="padding:16px 32px 24px;text-align:center;border-top:1px solid #1e293b;">
+                <p style="font-size:12px;color:#475569;margin:0;">SmartLaunch Web Development · Chinmay Joshi</p>
+              </div>
+            </div>`,
+        }),
       });
       const data = await res.json();
-      return !data.error;
+      return res.ok && !data.code; // Brevo returns code on error
     } catch(e) { console.warn('OTP send failed:', e); return false; }
   }
 
