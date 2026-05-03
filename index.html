@@ -559,6 +559,17 @@
     .dash-setup-banner { background:rgba(245,158,11,.08); border:1.5px solid rgba(245,158,11,.3); border-radius:12px; padding:18px 20px; margin-bottom:24px; color:#fbbf24; font-size:13px; line-height:1.7; }
     .dash-setup-banner code { background:rgba(245,158,11,.15); padding:2px 7px; border-radius:5px; font-family:monospace; font-size:12px; }
 
+    /* ── OTP BOXES ── */
+    .otp-box {
+      width: 44px; height: 52px; border-radius: 10px; border: 1.5px solid var(--border);
+      background: var(--bg); color: var(--text-prim); font-size: 22px; font-weight: 700;
+      text-align: center; font-family: var(--font); outline: none;
+      transition: border-color .2s, box-shadow .2s;
+    }
+    .otp-box:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(59,130,246,.15); }
+    .otp-box.filled { border-color: var(--accent); background: rgba(59,130,246,.06); }
+    .otp-box.error  { border-color: #f87171; background: rgba(239,68,68,.06); }
+
     /* ── RESPONSIVE ── */
     @media (max-width: 700px) {
       .about-grid, .contact-grid { grid-template-columns:1fr; }
@@ -823,6 +834,32 @@
           <div style="margin-top:16px;" class="auth-note">
             Already have an account? <a href="#" onclick="switchTab('login');return false;">Sign in</a><br><br>
             By registering, you agree to receive occasional project-related emails from Chinmay Joshi / SmartLaunch.
+          </div>
+        </div>
+
+        <!-- OTP Verification Step (shown after form submit) -->
+        <div id="otp-verify-wrap" style="display:none;">
+          <div id="otp-msg"></div>
+          <div style="text-align:center;margin-bottom:24px;">
+            <div style="font-size:40px;margin-bottom:12px;">📬</div>
+            <div style="font-weight:800;font-size:1.1rem;color:var(--text-prim);margin-bottom:8px;">Check your inbox!</div>
+            <div style="font-size:13px;color:var(--text-muted);line-height:1.6;">We sent a 6-digit code to<br><strong id="otp-email-display" style="color:var(--accent);">your email</strong></div>
+            <div style="font-size:11px;color:var(--text-muted);margin-top:6px;">Code expires in <span id="otp-timer" style="color:#f87171;font-weight:700;">10:00</span></div>
+          </div>
+          <div style="display:flex;gap:8px;justify-content:center;margin-bottom:20px;" id="otp-inputs">
+            <input type="text" maxlength="1" class="otp-box" oninput="otpInput(this,0)" onkeydown="otpKey(event,0)" />
+            <input type="text" maxlength="1" class="otp-box" oninput="otpInput(this,1)" onkeydown="otpKey(event,1)" />
+            <input type="text" maxlength="1" class="otp-box" oninput="otpInput(this,2)" onkeydown="otpKey(event,2)" />
+            <input type="text" maxlength="1" class="otp-box" oninput="otpInput(this,3)" onkeydown="otpKey(event,3)" />
+            <input type="text" maxlength="1" class="otp-box" oninput="otpInput(this,4)" onkeydown="otpKey(event,4)" />
+            <input type="text" maxlength="1" class="otp-box" oninput="otpInput(this,5)" onkeydown="otpKey(event,5)" />
+          </div>
+          <button class="auth-submit" id="otp-verify-btn" onclick="verifyOTP()">Verify & Create Account →</button>
+          <div style="text-align:center;margin-top:14px;">
+            <a href="#" id="otp-resend-link" onclick="resendOTP();return false;" style="font-size:13px;color:var(--text-muted);">Didn't get the code? Resend</a>
+          </div>
+          <div style="text-align:center;margin-top:8px;">
+            <a href="#" onclick="cancelOTP();return false;" style="font-size:12px;color:var(--text-muted);">← Go back</a>
           </div>
         </div>
 
@@ -1408,6 +1445,9 @@
     }, 700);
   }
 
+  // ── OTP state ──
+  let _otp = { code:'', name:'', email:'', pass:'', phone:'', expiresAt:0, timerInterval:null };
+
   function handleRegister() {
     const name  = document.getElementById('reg-name').value.trim();
     const email = document.getElementById('reg-email').value.trim();
@@ -1420,38 +1460,132 @@
     if (pass.length < 6) { showMsg(msg, 'error', 'Password must be at least 6 characters.'); return; }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showMsg(msg, 'error', 'Please enter a valid email address.'); return; }
 
+    const users = getUsers();
+    if (users.find(u => u.email === email)) {
+      showMsg(msg, 'error', 'An account with this email already exists. Please sign in.');
+      return;
+    }
+
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span>Sending OTP...';
+
+    sendOTPEmail(name, email).then(ok => {
+      btn.disabled = false;
+      btn.textContent = 'Create Account →';
+      if (!ok) { showMsg(msg, 'error', 'Failed to send OTP. Check your email and try again.'); return; }
+      _otp.name = name; _otp.email = email; _otp.pass = pass; _otp.phone = phone;
+      showOTPStep(email);
+    });
+  }
+
+  async function sendOTPEmail(name, email) {
+    const code = String(Math.floor(100000 + Math.random() * 900000));
+    _otp.code = code;
+    _otp.expiresAt = Date.now() + 10 * 60 * 1000; // 10 min
+    try {
+      const res = await fetch('https://jrlmzzjcbqjinbymbydg.supabase.co/functions/v1/send-welcome-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${SB.anonKey}` },
+        body: JSON.stringify({ type: 'otp', userName: name, userEmail: email, otpCode: code }),
+      });
+      const data = await res.json();
+      return !data.error;
+    } catch(e) { console.warn('OTP send failed:', e); return false; }
+  }
+
+  function showOTPStep(email) {
+    document.getElementById('register-form-wrap').style.display = 'none';
+    document.getElementById('otp-verify-wrap').style.display = 'block';
+    document.getElementById('otp-email-display').textContent = email;
+    // clear boxes
+    document.querySelectorAll('.otp-box').forEach(b => { b.value=''; b.className='otp-box'; });
+    document.querySelector('.otp-box').focus();
+    startOTPTimer();
+  }
+
+  function startOTPTimer() {
+    clearInterval(_otp.timerInterval);
+    _otp.timerInterval = setInterval(() => {
+      const left = Math.max(0, _otp.expiresAt - Date.now());
+      const m = String(Math.floor(left/60000)).padStart(2,'0');
+      const s = String(Math.floor((left%60000)/1000)).padStart(2,'0');
+      const el = document.getElementById('otp-timer');
+      if (el) el.textContent = `${m}:${s}`;
+      if (left === 0) { clearInterval(_otp.timerInterval); showMsg(document.getElementById('otp-msg'),'error','OTP expired. Please go back and try again.'); }
+    }, 1000);
+  }
+
+  function otpInput(el, idx) {
+    el.value = el.value.replace(/\D/,'');
+    el.classList.toggle('filled', el.value !== '');
+    if (el.value && idx < 5) document.querySelectorAll('.otp-box')[idx+1].focus();
+    // Auto-verify when all filled
+    const boxes = document.querySelectorAll('.otp-box');
+    if ([...boxes].every(b => b.value)) verifyOTP();
+  }
+
+  function otpKey(e, idx) {
+    if (e.key === 'Backspace') {
+      const boxes = document.querySelectorAll('.otp-box');
+      if (!boxes[idx].value && idx > 0) { boxes[idx-1].value=''; boxes[idx-1].classList.remove('filled'); boxes[idx-1].focus(); }
+    }
+  }
+
+  function verifyOTP() {
+    const boxes = document.querySelectorAll('.otp-box');
+    const entered = [...boxes].map(b => b.value).join('');
+    const msg = document.getElementById('otp-msg');
+    const btn = document.getElementById('otp-verify-btn');
+
+    if (entered.length < 6) { showMsg(msg,'error','Please enter all 6 digits.'); return; }
+    if (Date.now() > _otp.expiresAt) { showMsg(msg,'error','OTP expired. Please go back and try again.'); return; }
+
+    if (entered !== _otp.code) {
+      document.querySelectorAll('.otp-box').forEach(b => b.classList.add('error'));
+      showMsg(msg,'error','Incorrect OTP. Please try again.');
+      return;
+    }
+
+    // OTP correct — create account
     btn.disabled = true;
     btn.innerHTML = '<span class="spinner"></span>Creating account...';
+    clearInterval(_otp.timerInterval);
+
+    const { name, email, pass, phone } = _otp;
+    const users = getUsers();
+    const newUser = { name, email, pass: btoa(pass), phone, createdAt: new Date().toISOString() };
+    users.push(newUser);
+    saveUsers(users);
+
+    showMsg(msg, 'success', `Account created! Welcome, ${name}! 🎉`);
+    sendAuthEmail('New Registration', name, email);
+    sendWelcomeEmail(name, email, true);
+    sbInsertUser(name, email, phone);
+    sbLogActivity('New Registration', name, email);
+    saveAuthState({ name, email, phone });
 
     setTimeout(() => {
-      const users = getUsers();
-      if (users.find(u => u.email === email)) {
-        showMsg(msg, 'error', 'An account with this email already exists. Please sign in.');
-        btn.disabled = false;
-        btn.textContent = 'Create Account →';
-        return;
-      }
-      const newUser = { name, email, pass: btoa(pass), phone, createdAt: new Date().toISOString() };
-      users.push(newUser);
-      saveUsers(users);
+      closePage('login-page');
+      btn.disabled = false;
+      btn.textContent = 'Verify & Create Account →';
+      cancelOTP();
+    }, 1500);
+  }
 
-      showMsg(msg, 'success', `Account created! Welcome, ${name}! 🎉`);
-      sendAuthEmail('New Registration', name, email);
-      sendWelcomeEmail(name, email, true);
-      sbInsertUser(name, email, phone);
-      sbLogActivity('New Registration', name, email);
-      saveAuthState({ name, email, phone });
+  async function resendOTP() {
+    const link = document.getElementById('otp-resend-link');
+    link.textContent = 'Sending...';
+    const ok = await sendOTPEmail(_otp.name, _otp.email);
+    link.textContent = ok ? 'Code resent! Check your inbox.' : 'Failed. Try again.';
+    if (ok) { startOTPTimer(); setTimeout(()=>{ link.textContent="Didn't get the code? Resend"; }, 4000); }
+  }
 
-      setTimeout(() => {
-        closePage('login-page');
-        btn.disabled = false;
-        btn.textContent = 'Create Account →';
-        document.getElementById('reg-name').value = '';
-        document.getElementById('reg-email').value = '';
-        document.getElementById('reg-pass').value = '';
-        document.getElementById('reg-phone').value = '';
-      }, 1500);
-    }, 800);
+  function cancelOTP() {
+    clearInterval(_otp.timerInterval);
+    _otp = { code:'', name:'', email:'', pass:'', phone:'', expiresAt:0, timerInterval:null };
+    document.getElementById('otp-verify-wrap').style.display = 'none';
+    document.getElementById('register-form-wrap').style.display = 'block';
+    showMsg(document.getElementById('register-msg'),'','');
   }
 
   function showMsg(el, type, text) {
