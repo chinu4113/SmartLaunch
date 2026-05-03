@@ -25,6 +25,9 @@
       anonKey:'sb_publishable_Xk4Xc4u4P2S1eK-01Hz1rA_bN957wt0',
     };
     const SB_READY = SB.url !== 'YOUR_SUPABASE_URL';
+    // ── RESEND CONFIG (for sending welcome emails to users) ──
+    const RESEND_API_KEY = 're_6bAU5eVW_YUn64eQt5sai8yZypFrHXein';
+    const RESEND_FROM    = 'SmartLaunch <onboarding@resend.dev>';
     // Owner credentials — hardcoded, cannot be changed from UI
     const OWNER_CREDS = Object.freeze({ username: 'chinmay', password: 'SmartLaunch@9999' });
   </script>
@@ -998,30 +1001,56 @@
       const subject = isNew
         ? `Welcome to SmartLaunch, ${userName}! 🚀`
         : `Welcome back to SmartLaunch, ${userName}! 👋`;
-      const greeting = isNew
-        ? `Hi ${userName},\n\nYour SmartLaunch account has been created successfully! 🎉`
-        : `Hi ${userName},\n\nGreat to see you back at SmartLaunch! 👋`;
-      await fetch(W3F_CONFIG.endpoint, {
+      const htmlBody = isNew ? `
+        <div style="font-family:Arial,sans-serif;max-width:560px;margin:0 auto;background:#0f172a;color:#e2e8f0;border-radius:16px;overflow:hidden;">
+          <div style="background:linear-gradient(135deg,#1d4ed8,#06b6d4);padding:36px 32px;text-align:center;">
+            <div style="font-size:36px;margin-bottom:8px;">⚡</div>
+            <h1 style="margin:0;font-size:24px;color:#fff;">Welcome to SmartLaunch!</h1>
+            <p style="margin:8px 0 0;color:rgba(255,255,255,.8);font-size:14px;">Your account is ready, ${userName} 🎉</p>
+          </div>
+          <div style="padding:32px;">
+            <p style="font-size:15px;line-height:1.7;color:#cbd5e1;">Hi <strong style="color:#fff;">${userName}</strong>,</p>
+            <p style="font-size:15px;line-height:1.7;color:#cbd5e1;">Your SmartLaunch account has been created successfully. I'm <strong style="color:#fff;">Chinmay Joshi</strong>, founder of SmartLaunch — I help businesses build fast, beautiful websites delivered in <strong style="color:#38bdf8;">3–7 days</strong>.</p>
+            <p style="font-size:15px;line-height:1.7;color:#cbd5e1;">Have a project in mind? Let's talk:</p>
+            <div style="background:#1e293b;border-radius:12px;padding:20px;margin:20px 0;">
+              <p style="margin:6px 0;font-size:14px;">📧 <a href="mailto:chinmaywebstudio@gmail.com" style="color:#38bdf8;">chinmaywebstudio@gmail.com</a></p>
+              <p style="margin:6px 0;font-size:14px;">💬 <a href="https://wa.me/918830613791" style="color:#38bdf8;">WhatsApp: +91 8830613791</a></p>
+              <p style="margin:6px 0;font-size:14px;">🔗 <a href="https://www.linkedin.com/in/chinmay-joshi-a22a00358" style="color:#38bdf8;">LinkedIn</a></p>
+            </div>
+            <p style="font-size:14px;color:#64748b;margin-top:28px;">— Chinmay Joshi<br>Founder, SmartLaunch Web Development</p>
+          </div>
+        </div>` : `
+        <div style="font-family:Arial,sans-serif;max-width:560px;margin:0 auto;background:#0f172a;color:#e2e8f0;border-radius:16px;overflow:hidden;">
+          <div style="background:linear-gradient(135deg,#1d4ed8,#06b6d4);padding:36px 32px;text-align:center;">
+            <div style="font-size:36px;margin-bottom:8px;">👋</div>
+            <h1 style="margin:0;font-size:24px;color:#fff;">Welcome back!</h1>
+            <p style="margin:8px 0 0;color:rgba(255,255,255,.8);font-size:14px;">Good to see you again, ${userName}</p>
+          </div>
+          <div style="padding:32px;">
+            <p style="font-size:15px;line-height:1.7;color:#cbd5e1;">Hi <strong style="color:#fff;">${userName}</strong>, you've successfully logged in to SmartLaunch.</p>
+            <p style="font-size:15px;line-height:1.7;color:#cbd5e1;">Ready to start a new project or have questions? Reach me anytime:</p>
+            <div style="background:#1e293b;border-radius:12px;padding:20px;margin:20px 0;">
+              <p style="margin:6px 0;font-size:14px;">📧 <a href="mailto:chinmaywebstudio@gmail.com" style="color:#38bdf8;">chinmaywebstudio@gmail.com</a></p>
+              <p style="margin:6px 0;font-size:14px;">💬 <a href="https://wa.me/918830613791" style="color:#38bdf8;">WhatsApp: +91 8830613791</a></p>
+            </div>
+            <p style="font-size:14px;color:#64748b;margin-top:28px;">— Chinmay Joshi<br>Founder, SmartLaunch</p>
+          </div>
+        </div>`;
+
+      await fetch('https://api.resend.com/emails', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${RESEND_API_KEY}`,
+        },
         body: JSON.stringify({
-          access_key: W3F_CONFIG.accessKey,
+          from:    RESEND_FROM,
+          to:      [userEmail],
           subject,
-          from_name:  'Chinmay Joshi — SmartLaunch',
-          email:      userEmail,           // sends TO the user
-          message:
-            `${greeting}\n\n` +
-            `I'm Chinmay Joshi, founder of SmartLaunch. I help businesses build fast, ` +
-            `beautiful websites — delivered in 3–7 days.\n\n` +
-            `Have a project in mind? Just reply to this email or reach me directly:\n` +
-            `📧 chinmaywebstudio@gmail.com\n` +
-            `💬 WhatsApp: +91 8830613791\n` +
-            `🔗 https://www.linkedin.com/in/chinmay-joshi-a22a00358\n\n` +
-            `Looking forward to building something great together!\n\n` +
-            `— Chinmay Joshi\nFounder, SmartLaunch Web Development`,
+          html:    htmlBody,
         }),
       });
-    } catch(e) { console.warn('Web3Forms welcome email failed:', e); }
+    } catch(e) { console.warn('Resend welcome email failed:', e); }
   }
 
   // ══════════════════════════════════════════════════════════════════════════════
