@@ -1711,6 +1711,9 @@
     const cf = document.getElementById('contact-form');
     if (cf) cf.addEventListener('submit', handleContactSubmit);
 
+    // Load live reviews from Supabase
+    if (id === 'testimonials') loadLiveReviews();
+
     document.getElementById('panel-page').className = 'page open slide-in';
     document.body.style.overflow = 'hidden';
     closeSidebar();
