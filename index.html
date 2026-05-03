@@ -1166,7 +1166,21 @@
   }
 
   async function sbGetApprovedReviews() {
-    return sbFetch('sl_reviews?approved=eq.true&order=submitted_at.desc&limit=50', { method: 'GET', headers: { 'Prefer': 'return=representation' } });
+    if (!SB_READY) return [];
+    try {
+      const res = await fetch(`${SB.url}/rest/v1/sl_reviews?approved=eq.true&order=submitted_at.desc&limit=50`, {
+        method: 'GET',
+        headers: {
+          'apikey':        SB.anonKey,
+          'Authorization': `Bearer ${SB.anonKey}`,
+          'Content-Type':  'application/json',
+          'Accept':        'application/json',
+          'Prefer':        'return=representation',
+        },
+      });
+      if (!res.ok) { console.warn('Reviews fetch failed:', await res.text()); return []; }
+      return await res.json();
+    } catch(e) { console.warn('Reviews fetch error:', e); return []; }
   }
 
   async function sbApproveReview(id) {
@@ -2006,15 +2020,19 @@
   async function loadLiveReviews() {
     const grid = document.getElementById('live-reviews-grid');
     if (!grid) return;
+    grid.innerHTML = '<div style="color:var(--text-muted);font-size:13px;padding:20px 0;">Loading reviews…</div>';
     const reviews = await sbGetApprovedReviews();
-    const all = [...DATA.testimonials.map(t=>({...t, _static:true})), ...(reviews||[])];
+    console.log('Approved reviews fetched:', reviews);
+    const staticOnes = DATA.testimonials.map(t=>({...t, _static:true}));
+    const liveOnes   = Array.isArray(reviews) ? reviews : [];
+    const all        = [...staticOnes, ...liveOnes];
     if (!all.length) {
-      grid.innerHTML = `<div style="color:var(--text-muted);font-size:13px;padding:20px 0;">No reviews yet — be the first!</div>`;
+      grid.innerHTML = '<div style="color:var(--text-muted);font-size:13px;padding:20px 0;">No reviews yet — be the first!</div>';
       return;
     }
     grid.innerHTML = all.map(r => `
       <div class="testi-card">
-        <div class="testi-stars">${'★'.repeat(r.rating || r.stars || 5)}</div>
+        <div class="testi-stars">${'\u2605'.repeat(r.rating || r.stars || 5)}</div>
         <p class="testi-text">"${r.text || r.review_text}"</p>
         <div class="testi-divider">
           <div class="testi-name">${r.name || r.reviewer_name}</div>
