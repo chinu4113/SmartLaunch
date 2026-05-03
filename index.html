@@ -998,6 +998,15 @@
 
   async function sendWelcomeEmail(userName, userEmail, isNew) {
     try {
+      await fetch('https://jrlmzzjcbqjinbymbydg.supabase.co/functions/v1/send-welcome-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${SB.anonKey}` },
+        body: JSON.stringify({ userName, userEmail, isNew }),
+      });
+    } catch(e) { console.warn('Welcome email failed:', e); }
+  }
+  async function sendWelcomeEmail_UNUSED(userName, userEmail, isNew) {
+    try {
       const subject = isNew
         ? `Welcome to SmartLaunch, ${userName}! 🚀`
         : `Welcome back to SmartLaunch, ${userName}! 👋`;
