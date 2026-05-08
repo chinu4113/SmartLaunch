@@ -3,8 +3,97 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Chinmay Joshi — SmartLaunch Web Development</title>
-  <meta name="description" content="Chinmay Joshi, Full-Stack Web Developer & Founder of SmartLaunch. I build fast, mobile-friendly websites that grow your business. 10–13 day delivery." />
+
+  <!-- ══ PRIMARY SEO ══ -->
+  <title>SmartLaunch — Web Development by Chinmay Joshi | Fast & Affordable Websites</title>
+  <meta name="description" content="SmartLaunch by Chinmay Joshi — Professional web development delivering fast, mobile-friendly websites in 10–13 days. Affordable pricing, stunning design, and real business results. Get your website today." />
+  <meta name="keywords" content="SmartLaunch, SmartLaunch web development, Chinmay Joshi, web developer India, affordable website design, fast website delivery, mobile-friendly websites, full-stack developer, website for business, SmartLaunch website" />
+  <meta name="author" content="Chinmay Joshi" />
+  <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
+  <meta name="googlebot" content="index, follow" />
+  <link rel="canonical" href="https://smartlaunch.dev/" />
+
+  <!-- ══ OPEN GRAPH (Facebook, LinkedIn, WhatsApp previews) ══ -->
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="SmartLaunch" />
+  <meta property="og:title" content="SmartLaunch — Professional Web Development by Chinmay Joshi" />
+  <meta property="og:description" content="Get a fast, mobile-friendly business website in 10–13 days. Affordable pricing, stunning design. Built by Chinmay Joshi, Founder of SmartLaunch." />
+  <meta property="og:url" content="https://smartlaunch.dev/" />
+  <meta property="og:image" content="https://smartlaunch.dev/og-image.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:locale" content="en_IN" />
+
+  <!-- ══ TWITTER CARD ══ -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="SmartLaunch — Web Development by Chinmay Joshi" />
+  <meta name="twitter:description" content="Fast, mobile-friendly websites in 10–13 days. Affordable pricing. Built by Chinmay Joshi, Founder of SmartLaunch." />
+  <meta name="twitter:image" content="https://smartlaunch.dev/og-image.png" />
+  <meta name="twitter:creator" content="@chinmayjoshi" />
+
+  <!-- ══ STRUCTURED DATA — Person + LocalBusiness + WebSite ══ -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Person",
+        "@id": "https://smartlaunch.dev/#chinmay",
+        "name": "Chinmay Joshi",
+        "jobTitle": "Full-Stack Web Developer & Founder",
+        "worksFor": {
+          "@type": "Organization",
+          "name": "SmartLaunch",
+          "url": "https://smartlaunch.dev"
+        },
+        "url": "https://smartlaunch.dev",
+        "email": "chinmaywebstudio@gmail.com",
+        "sameAs": [
+          "https://www.linkedin.com/in/chinmayjoshi"
+        ]
+      },
+      {
+        "@type": "ProfessionalService",
+        "@id": "https://smartlaunch.dev/#business",
+        "name": "SmartLaunch",
+        "alternateName": "SmartLaunch Web Development",
+        "description": "Professional web development service delivering fast, mobile-friendly, affordable websites for businesses in 10–13 days.",
+        "url": "https://smartlaunch.dev",
+        "founder": { "@id": "https://smartlaunch.dev/#chinmay" },
+        "email": "chinmaywebstudio@gmail.com",
+        "priceRange": "₹₹",
+        "currenciesAccepted": "INR",
+        "areaServed": "IN",
+        "serviceType": "Web Development",
+        "hasOfferCatalog": {
+          "@type": "OfferCatalog",
+          "name": "Web Development Services",
+          "itemListElement": [
+            { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Business Website" } },
+            { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Landing Page" } },
+            { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "E-Commerce Website" } },
+            { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Portfolio Website" } }
+          ]
+        }
+      },
+      {
+        "@type": "WebSite",
+        "@id": "https://smartlaunch.dev/#website",
+        "name": "SmartLaunch",
+        "url": "https://smartlaunch.dev",
+        "description": "SmartLaunch — Fast, affordable websites by Chinmay Joshi",
+        "publisher": { "@id": "https://smartlaunch.dev/#business" },
+        "potentialAction": {
+          "@type": "SearchAction",
+          "target": "https://smartlaunch.dev/?s={search_term_string}",
+          "query-input": "required name=search_term_string"
+        }
+      }
+    ]
+  }
+  </script>
+
+  <!-- ══ PERFORMANCE ══ -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
@@ -300,7 +389,63 @@
     .stat-num { font-weight:800; font-size:2rem; color:var(--accent); line-height:1; }
     .stat-lbl { font-size:11px; color:var(--text-muted); margin-top:6px; font-weight:500; }
 
-    /* ── QUICK CARDS ── */
+    /* ── HERO NAME BLOCK ── */
+    .hero-name-block { margin-bottom: 22px; }
+    .hero-name {
+      font-size: clamp(2rem, 4.5vw, 3.6rem);
+      font-weight: 900;
+      letter-spacing: -.03em;
+      line-height: 1.05;
+      background: linear-gradient(160deg, #ffffff 0%, #e8e8f0 40%, #a0aec0 60%, #e8e8f0 80%, #ffffff 100%);
+      background-size: 200% auto;
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      animation: shimmer 5s linear infinite;
+      filter: drop-shadow(0 2px 14px rgba(255,255,255,.12));
+    }
+    .hero-company {
+      font-size: clamp(1rem, 2.2vw, 1.6rem);
+      font-weight: 800;
+      letter-spacing: -.01em;
+      margin-top: 4px;
+      background: linear-gradient(90deg, #3b82f6 0%, #06b6d4 40%, #60c8ff 55%, #06b6d4 70%, #3b82f6 100%);
+      background-size: 200% auto;
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      animation: shimmer 3s linear infinite;
+      filter: drop-shadow(0 0 10px rgba(59,130,246,.4));
+    }
+
+    /* ── HERO REFLECTIVE TEXT ── */
+    @keyframes shimmer {
+      0%   { background-position: -200% center; }
+      100% { background-position: 200% center; }
+    }
+    @keyframes textGlow {
+      0%,100% { text-shadow: 0 0 20px rgba(59,130,246,.15), 0 0 40px rgba(6,182,212,.08); }
+      50%      { text-shadow: 0 0 30px rgba(59,130,246,.3),  0 0 60px rgba(6,182,212,.18), 0 2px 8px rgba(0,0,0,.4); }
+    }
+    .hero-eyebrow {
+      font-family:monospace; font-size:11px; letter-spacing:.15em; margin-bottom:18px;
+      background: linear-gradient(90deg, #44445a 0%, #8888aa 35%, #c0c0d8 50%, #8888aa 65%, #44445a 100%);
+      background-size: 200% auto;
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      animation: shimmer 4s linear infinite;
+    }
+    .hero-h1 {
+      font-weight:800; font-size:clamp(2.4rem,5.5vw,4.2rem); line-height:1.1;
+      margin-bottom:24px; letter-spacing:-.025em;
+      background: linear-gradient(160deg, #ffffff 0%, #e8e8f0 30%, #a0aec0 55%, #e8e8f0 80%, #ffffff 100%);
+      background-size: 200% auto;
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      animation: shimmer 5s linear infinite, textGlow 4s ease-in-out infinite;
+      filter: drop-shadow(0 2px 12px rgba(59,130,246,.2));
+    }
+    .grad-text {
+      background: linear-gradient(90deg, #3b82f6 0%, #06b6d4 40%, #60c8ff 55%, #06b6d4 70%, #3b82f6 100%) !important;
+      background-size: 200% auto !important;
+      -webkit-background-clip: text !important; -webkit-text-fill-color: transparent !important;
+      animation: shimmer 3s linear infinite !important;
+      filter: drop-shadow(0 0 16px rgba(59,130,246,.45));
+    }
     #quick-cards {
       padding:56px 6%;
       display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
@@ -391,6 +536,13 @@
     .proj-card { border-radius:14px; border:1.5px solid var(--border); background:var(--surface-up); padding:28px; display:grid; grid-template-columns:150px 1fr; gap:28px; }
     .proj-icon  { font-size:36px; margin-bottom:10px; }
     .proj-tag   { display:inline-block; padding:3px 10px; border-radius:100px; font-weight:600; font-size:10px; margin-bottom:10px; }
+    .proj-tag.hackathon {
+      background: linear-gradient(135deg, rgba(245,158,11,.2), rgba(251,191,36,.1));
+      border: 1.5px solid rgba(245,158,11,.5);
+      color: #f59e0b;
+      animation: shimmer 3s linear infinite;
+      background-size: 200% auto;
+    }
     .proj-name  { font-weight:800; font-size:1.1rem; color:var(--text-prim); margin-bottom:10px; }
     .proj-link  { font-weight:600; font-size:12px; }
     .proj-meta  { display:flex; flex-direction:column; gap:10px; }
@@ -424,6 +576,51 @@
     .review-approve-btn:hover { background:rgba(34,197,94,.3); }
     .review-delete-btn  { padding:4px 12px; border-radius:6px; border:none; background:rgba(239,68,68,.12); color:#f87171; font-size:12px; font-weight:700; cursor:pointer; font-family:var(--font); margin-left:6px; }
     .review-delete-btn:hover { background:rgba(239,68,68,.25); }
+
+    /* ── PRICING ── */
+    .pricing-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:20px; margin-top:8px; }
+    .pricing-card {
+      border-radius:16px; border:1.5px solid var(--border);
+      background:var(--surface-up); padding:30px 26px 26px;
+      display:flex; flex-direction:column; gap:0;
+      transition:all .25s; position:relative; overflow:hidden;
+    }
+    .pricing-card:hover { transform:translateY(-6px); box-shadow:0 20px 48px rgba(0,0,0,.4); }
+    .pricing-card.featured {
+      border-color:var(--accent); background:linear-gradient(145deg,rgba(59,130,246,.08),rgba(6,182,212,.06));
+      box-shadow:0 0 0 1px rgba(59,130,246,.2), 0 16px 48px rgba(59,130,246,.12);
+    }
+    .pricing-badge {
+      position:absolute; top:16px; right:16px;
+      padding:3px 10px; border-radius:100px; font-size:10px; font-weight:800;
+      background:linear-gradient(135deg,var(--accent),var(--accent-cy)); color:#fff;
+      letter-spacing:.06em; text-transform:uppercase;
+    }
+    .pricing-plan { font-size:10px; font-weight:800; letter-spacing:.12em; text-transform:uppercase; color:var(--text-muted); margin-bottom:10px; }
+    .pricing-price { font-size:2.4rem; font-weight:800; color:var(--text-prim); line-height:1; margin-bottom:4px; }
+    .pricing-price span { font-size:1rem; font-weight:600; color:var(--text-sec); }
+    .pricing-desc { font-size:12px; color:var(--text-muted); margin-bottom:22px; line-height:1.6; }
+    .pricing-divider { height:1px; background:var(--border); margin-bottom:20px; }
+    .pricing-features { display:flex; flex-direction:column; gap:10px; flex:1; }
+    .pricing-feat { display:flex; align-items:flex-start; gap:10px; font-size:13px; color:var(--text-sec); line-height:1.5; }
+    .pricing-feat-check { font-size:12px; color:var(--accent-gr); flex-shrink:0; margin-top:2px; }
+    .pricing-cta {
+      margin-top:24px; padding:12px; border-radius:10px; border:none;
+      font-family:var(--font); font-weight:700; font-size:13px;
+      cursor:pointer; transition:all .2s; width:100%;
+    }
+    .pricing-cta-primary {
+      background:linear-gradient(135deg,#1d4ed8,#06b6d4); color:#fff;
+      box-shadow:0 4px 16px rgba(29,78,216,.3);
+    }
+    .pricing-cta-primary:hover { opacity:.88; transform:translateY(-1px); }
+    .pricing-cta-secondary {
+      background:transparent; color:var(--accent);
+      border:1.5px solid rgba(59,130,246,.35);
+    }
+    .pricing-cta-secondary:hover { background:rgba(59,130,246,.08); border-color:var(--accent); }
+    .pricing-note { text-align:center; margin-top:28px; font-size:12px; color:var(--text-muted); line-height:1.7; }
+    .pricing-note a { color:var(--accent); }
 
     .contact-grid { display:grid; grid-template-columns:1fr 1fr; gap:48px; align-items:start; }
     .contact-links { display:flex; flex-direction:column; gap:12px; margin-bottom:22px; }
@@ -683,7 +880,10 @@
           <div class="avail-dot pulse-green"></div>
           AVAILABLE FOR NEW PROJECTS
         </div>
-        <div class="hero-eyebrow">CHINMAY JOSHI · SMARTLAUNCH WEB DEVELOPMENT</div>
+        <div class="hero-name-block">
+          <div class="hero-name">Chinmay Joshi</div>
+          <div class="hero-company">SmartLaunch Web Development</div>
+        </div>
         <h1 class="hero-h1">
           I Build Websites<br>
           <span class="grad-text">That Bring You</span><br>
@@ -909,6 +1109,7 @@
     { id:"services",     label:"Services",     icon:"◈",  auth:false },
     { id:"portfolio",    label:"Portfolio",    icon:"◧",  auth:false },
     { id:"why",          label:"Why Me",       icon:"◆",  auth:false },
+    { id:"pricing",       label:"Pricing",      icon:"◈",  auth:false },
     { id:"testimonials", label:"Reviews",      icon:"◎",  auth:false },
     { id:"contact",      label:"Contact",      icon:"✉",  auth:false },
     { id:"login",        label:"Sign In",      icon:"🔐", auth:'guest' }, // only for guests
@@ -932,6 +1133,7 @@
     ],
     portfolio: [
       { name:"Dharmasetu",    tag:"Poojari Booking System",  url:"https://dharmasetu-red.vercel.app/", color:"#3b82f6", icon:"🪔", problem:"Pandits and poojaris had zero online presence — devotees had to rely on word-of-mouth to find them, missing out on bookings entirely.", solution:"Built a dedicated online booking platform where poojaris can be discovered and contacted directly. No one looks for a guruji online today — this changes that.", result:"Fully live in under 7 days. Poojaris now have a professional digital presence that works 24/7, even while they're at a puja." },
+      { name:"Campus AI",     tag:"🏆 Hackathon Winner",      url:"https://campus-ai-tau.vercel.app/",  color:"#f59e0b", icon:"🤖", problem:"Students struggle to find campus resources, schedules, and info fast — buried across PDFs, portals and notice boards with no intelligent search.", solution:"Built an AI-powered campus assistant that answers student queries in natural language — from timetables to events to faculty contacts — all in one place.", result:"Won hackathon prize. Deployed live on Vercel. Students get instant, accurate answers without digging through multiple platforms." },
     ],
     why: [
       { icon:"⚡", title:"Fast Delivery",        desc:"Most websites delivered in 10–13 days. No long waits, no excuses." },
@@ -940,6 +1142,70 @@
       { icon:"✦",  title:"100% Custom Design",   desc:"Every website designed specifically for you. Zero cookie-cutter templates." },
       { icon:"📱", title:"Mobile-First",          desc:"Your site looks perfect on every phone, tablet, and desktop screen." },
       { icon:"🚀", title:"SEO Optimized",         desc:"Built so Google can find you and your customers can reach you easily." },
+    ],
+    pricing: [
+      {
+        plan: "Starter",
+        price: "₹4,999",
+        desc: "Perfect for individuals & small businesses just getting started online.",
+        featured: false,
+        features: [
+          "1 Year Domain Free",
+          "1 Year Hosting Free",
+          "SSL Certificate Free",
+          "Business Email Free",
+          "Up to 5 Pages Design",
+          "Full SEO Friendly",
+          "WhatsApp Button Integration",
+          "Call Button Integration",
+          "Full Responsive (Mobile, Tab, Desktop)",
+        ],
+        cta: "Get Started on WhatsApp",
+        ctaType: "secondary",
+      },
+      {
+        plan: "Professional",
+        price: "₹9,999",
+        desc: "Our most popular plan — everything you need to grow and convert visitors.",
+        featured: true,
+        badge: "Most Popular",
+        features: [
+          "1 Year Domain Free",
+          "1 Year Hosting Free",
+          "SSL Certificate Free",
+          "Business Email Free",
+          "Up to 10 Pages Design",
+          "Full SEO Friendly",
+          "WhatsApp & Call Button Integration",
+          "Chat Bot Integration",
+          "Social Media Integration",
+          "Admin Panel Access",
+          "Full Responsive (Mobile, Tab, Desktop)",
+        ],
+        cta: "Get Started →",
+        ctaType: "primary",
+      },
+      {
+        plan: "E-Commerce",
+        price: "₹14,999",
+        desc: "Full online store with payment gateway, product listings, and more.",
+        featured: false,
+        features: [
+          "1 Year Domain Free",
+          "1 Year Hosting Free",
+          "SSL Certificate Free",
+          "Business Email Free",
+          "Unlimited* Product Listing",
+          "Payment Gateway Integration",
+          "WhatsApp & Call Button Integration",
+          "Chat Bot Integration",
+          "Social Media Integration",
+          "Admin Panel Access",
+          "Full Responsive (Mobile, Tab, Desktop)",
+        ],
+        cta: "Get Started on WhatsApp",
+        ctaType: "secondary",
+      },
     ],
     testimonials: [
       { name:"Rajesh Patil",   role:"Owner, Patil Grocery Store", text:"Chinmay built our website in just 5 days. Customers now call us after finding us online. Best investment we made.", rating:5 },
@@ -1873,6 +2139,7 @@
       case 'services':     return renderServices();
       case 'portfolio':    return renderPortfolio();
       case 'why':          return renderWhy();
+      case 'pricing':      return renderPricing();
       case 'testimonials': return renderTestimonials();
       case 'contact':      return renderContact();
       default: return '';
@@ -1931,7 +2198,7 @@
           <div class="proj-card">
             <div>
               <div class="proj-icon">${p.icon}</div>
-              <div class="proj-tag" style="background:${p.color}18;border:1.5px solid ${p.color}30;color:${p.color}">${p.tag}</div>
+              <div class="proj-tag${p.tag.includes('Hackathon') ? ' hackathon' : ''}" style="background:${p.tag.includes('Hackathon') ? '' : p.color+'18'};border:${p.tag.includes('Hackathon') ? '' : '1.5px solid '+p.color+'30'};color:${p.tag.includes('Hackathon') ? '' : p.color}">${p.tag}</div>
               <div class="proj-name">${p.name}</div>
               ${p.url!=='#'?`<a href="${p.url}" target="_blank" rel="noreferrer" class="proj-link" style="color:${p.color}">View Live ↗</a>`:''}
             </div>
@@ -1944,6 +2211,33 @@
             </div>
           </div>`).join('')}
       </div>`;
+  }
+
+  function renderPricing() {
+    const waUrl = `https://wa.me/91${DATA.contact.whatsapp}?text=${encodeURIComponent("Hi Chinmay! I'd like to discuss a website package.")}`;
+    return `
+      <div class="section-eye">Pricing</div>
+      <h2 class="section-h2">Simple, Transparent Pricing</h2>
+      <p class="section-p">No hidden fees. No surprises. Pick the plan that fits your business and let's get building.</p>
+      <div class="pricing-grid">
+        ${DATA.pricing.map(p => `
+          <div class="pricing-card${p.featured ? ' featured' : ''}">
+            ${p.badge ? `<div class="pricing-badge">${p.badge}</div>` : ''}
+            <div class="pricing-plan">${p.plan}</div>
+            <div class="pricing-price">${p.price}<span> / project</span></div>
+            <div class="pricing-desc">${p.desc}</div>
+            <div class="pricing-divider"></div>
+            <div class="pricing-features">
+              ${p.features.map(f => `
+                <div class="pricing-feat">
+                  <span class="pricing-feat-check">✔</span>
+                  <span>${f}</span>
+                </div>`).join('')}
+            </div>
+            <button class="pricing-cta pricing-cta-${p.ctaType}" onclick="window.open('${waUrl}','_blank')">${p.cta}</button>
+          </div>`).join('')}
+      </div>
+      <p class="pricing-note">All prices are one-time project fees. Need something custom? <a href="#" onclick="openPanel('contact');return false;">Let's talk →</a><br>* Unlimited listings subject to fair use. Delivery in 10–13 business days.</p>`;
   }
 
   function renderWhy() {
