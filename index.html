@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Chinmay Joshi — SmartLaunch Web Development</title>
-  <meta name="description" content="Chinmay Joshi, Full-Stack Web Developer & Founder of SmartLaunch. I build fast, mobile-friendly websites that grow your business. 3–7 day delivery." />
+  <meta name="description" content="Chinmay Joshi, Full-Stack Web Developer & Founder of SmartLaunch. I build fast, mobile-friendly websites that grow your business. 10–13 day delivery." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
@@ -695,7 +695,7 @@
           <button class="btn-outline" onclick="openPanel('portfolio')">View My Work</button>
         </div>
         <div class="hero-stats">
-          <div><div class="stat-num">3–7</div><div class="stat-lbl">Days Delivery</div></div>
+          <div><div class="stat-num">10–13</div><div class="stat-lbl">Days Delivery</div></div>
           <div><div class="stat-num">100%</div><div class="stat-lbl">Custom Design</div></div>
           <div><div class="stat-num">10+</div><div class="stat-lbl">Happy Clients</div></div>
         </div>
@@ -917,7 +917,7 @@
   const DATA = {
     home: {
       body: "I design, develop, and deploy fast, mobile-friendly websites built for real-world use. From understanding your requirements to launching the final product — I handle everything end-to-end.",
-      stats: [["3–7","Days Delivery"],["100%","Custom Design"],["10+","Happy Clients"]],
+      stats: [["10–13","Days Delivery"],["100%","Custom Design"],["10+","Happy Clients"]],
     },
     about: {
       role: "Full-Stack Web Developer & Founder of SmartLaunch",
@@ -934,7 +934,7 @@
       { name:"Dharmasetu",    tag:"Poojari Booking System",  url:"https://dharmasetu-red.vercel.app/", color:"#3b82f6", icon:"🪔", problem:"Pandits and poojaris had zero online presence — devotees had to rely on word-of-mouth to find them, missing out on bookings entirely.", solution:"Built a dedicated online booking platform where poojaris can be discovered and contacted directly. No one looks for a guruji online today — this changes that.", result:"Fully live in under 7 days. Poojaris now have a professional digital presence that works 24/7, even while they're at a puja." },
     ],
     why: [
-      { icon:"⚡", title:"Fast Delivery",        desc:"Most websites delivered in 3–7 days. No long waits, no excuses." },
+      { icon:"⚡", title:"Fast Delivery",        desc:"Most websites delivered in 10–13 days. No long waits, no excuses." },
       { icon:"₹",  title:"Affordable Pricing",   desc:"Professional quality at prices that make sense for small businesses." },
       { icon:"💬", title:"Direct Communication", desc:"You talk to me directly — no middlemen, no delays, no confusion." },
       { icon:"✦",  title:"100% Custom Design",   desc:"Every website designed specifically for you. Zero cookie-cutter templates." },
@@ -1024,33 +1024,53 @@
   function initEmailJS() { /* no-op — Web3Forms needs no init */ }
 
   async function sendAuthEmail(eventType, userName, userEmail) {
-    try {
-      const timestamp = new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' });
-      await fetch(W3F_CONFIG.endpoint, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-        body: JSON.stringify({
-          access_key: W3F_CONFIG.accessKey,
-          subject:    `SmartLaunch — ${eventType}`,
-          from_name:  'SmartLaunch Notifications',
-          message:
-            `Event: ${eventType}\n` +
-            `Name: ${userName}\n` +
-            `Email: ${userEmail}\n` +
-            `Time: ${timestamp}`,
-        }),
-      });
-    } catch(e) { console.warn('Web3Forms auth email failed:', e); }
+    const timestamp = new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' });
+    const payload = {
+      access_key: W3F_CONFIG.accessKey,
+      subject:    `SmartLaunch — ${eventType}`,
+      from_name:  'SmartLaunch Notifications',
+      message:
+        `Event: ${eventType}\n` +
+        `Name: ${userName}\n` +
+        `Email: ${userEmail}\n` +
+        `Time: ${timestamp}`,
+    };
+    // Retry up to 3 times with 2s gap
+    for (let attempt = 1; attempt <= 3; attempt++) {
+      try {
+        const res  = await fetch(W3F_CONFIG.endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+        const data = await res.json();
+        if (data.success) { console.log(`Owner notification sent (attempt ${attempt})`); return; }
+        console.warn(`Owner email attempt ${attempt} rejected:`, data.message);
+      } catch(e) {
+        console.warn(`Owner email attempt ${attempt} error:`, e);
+      }
+      if (attempt < 3) await new Promise(r => setTimeout(r, 2000));
+    }
+    console.warn('Owner email failed after 3 attempts:', { eventType, userName, userEmail, timestamp });
   }
 
   async function sendWelcomeEmail(userName, userEmail, isNew) {
-    try {
-      await emailjs.send('service_45dvnln', 'template_u1pfj4c', {
-        to_name:  userName,
-        to_email: userEmail,
-        is_new:   isNew ? 'true' : 'false',
-      });
-    } catch(e) { console.warn('Welcome email failed:', e); }
+    // Retry up to 3 times with 2s gap
+    for (let attempt = 1; attempt <= 3; attempt++) {
+      try {
+        await emailjs.send('service_45dvnln', 'template_u1pfj4c', {
+          to_name:  userName,
+          to_email: userEmail,
+          is_new:   isNew ? 'true' : 'false',
+        });
+        console.log(`Welcome email sent to user (attempt ${attempt})`);
+        return; // success — stop retrying
+      } catch(e) {
+        console.warn(`Welcome email attempt ${attempt} failed:`, e);
+        if (attempt < 3) await new Promise(r => setTimeout(r, 2000));
+      }
+    }
+    console.warn('Welcome email failed after 3 attempts for:', userEmail);
   }
   async function sendWelcomeEmail_UNUSED(userName, userEmail, isNew) {
     try {
@@ -1066,7 +1086,7 @@
           </div>
           <div style="padding:32px;">
             <p style="font-size:15px;line-height:1.7;color:#cbd5e1;">Hi <strong style="color:#fff;">${userName}</strong>,</p>
-            <p style="font-size:15px;line-height:1.7;color:#cbd5e1;">Your SmartLaunch account has been created successfully. I'm <strong style="color:#fff;">Chinmay Joshi</strong>, founder of SmartLaunch — I help businesses build fast, beautiful websites delivered in <strong style="color:#38bdf8;">3–7 days</strong>.</p>
+            <p style="font-size:15px;line-height:1.7;color:#cbd5e1;">Your SmartLaunch account has been created successfully. I'm <strong style="color:#fff;">Chinmay Joshi</strong>, founder of SmartLaunch — I help businesses build fast, beautiful websites delivered in <strong style="color:#38bdf8;">10–13 days</strong>.</p>
             <p style="font-size:15px;line-height:1.7;color:#cbd5e1;">Have a project in mind? Let's talk:</p>
             <div style="background:#1e293b;border-radius:12px;padding:20px;margin:20px 0;">
               <p style="margin:6px 0;font-size:14px;">📧 <a href="mailto:chinmaywebstudio@gmail.com" style="color:#38bdf8;">chinmaywebstudio@gmail.com</a></p>
@@ -1566,12 +1586,17 @@
     }
 
     btn.disabled = true;
-    btn.innerHTML = '<span class="spinner"></span>Sending OTP...';
+    btn.innerHTML = '<span class="spinner"></span>Sending OTP…';
 
     sendOTPEmail(name, email).then(ok => {
       btn.disabled = false;
       btn.textContent = 'Create Account →';
-      if (!ok) { showMsg(msg, 'error', 'Failed to send OTP. Check your email and try again.'); return; }
+      if (!ok) {
+        showMsg(msg, 'error',
+          'Could not send OTP after 3 attempts. Please check your email address, ' +
+          'wait a moment, and try again. If the problem persists, contact chinmaywebstudio@gmail.com.');
+        return;
+      }
       _otp.name = name; _otp.email = email; _otp.pass = pass; _otp.phone = phone;
       showOTPStep(email);
     });
@@ -1581,14 +1606,23 @@
     const code = String(Math.floor(100000 + Math.random() * 900000));
     _otp.code = code;
     _otp.expiresAt = Date.now() + 10 * 60 * 1000; // 10 min
-    try {
-      await emailjs.send('service_45dvnln', 'template_1cti95t', {
-        to_name:  name,
-        to_email: email,
-        otp_code: code,
-      });
-      return true;
-    } catch(e) { console.warn('OTP send failed:', e); return false; }
+    // Retry up to 3 times with 2s gap
+    for (let attempt = 1; attempt <= 3; attempt++) {
+      try {
+        await emailjs.send('service_45dvnln', 'template_1cti95t', {
+          to_name:  name,
+          to_email: email,
+          otp_code: code,
+        });
+        console.log(`OTP email sent (attempt ${attempt})`);
+        return true;
+      } catch(e) {
+        console.warn(`OTP email attempt ${attempt} failed:`, e);
+        if (attempt < 3) await new Promise(r => setTimeout(r, 2000));
+      }
+    }
+    console.warn('OTP email failed after 3 attempts for:', email);
+    return false;
   }
 
   function showOTPStep(email) {
@@ -1852,7 +1886,7 @@
       `  role: <span class="str">"Full-Stack Developer"</span>,`,
       `  company: <span class="str">"SmartLaunch"</span>,`,
       `  skills: [<span class="str">"design"</span>,<span class="str">"dev"</span>,<span class="str">"deploy"</span>],`,
-      `  delivery: <span class="str">"3–7 days"</span>,`,
+      `  delivery: <span class="str">"10–13 days"</span>,`,
       `  quality: <span class="str">"premium"</span>,`,
       `  <span class="key">available</span>: <span class="bool">true</span>`,
       `};`,
