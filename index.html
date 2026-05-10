@@ -2196,7 +2196,7 @@
       <div class="proj-list">
         ${DATA.portfolio.map(p=>`
           <div class="proj-card">
-            ${p.image ? `<img src="${p.image}" alt="${p.name} preview" loading="lazy" style="width:100%;border-radius:12px;margin-bottom:16px;border:1.5px solid rgba(255,255,255,.08);display:block;" />` : ''}
+            ${p.image ? `<img src="${p.image}" alt="${p.name} preview" loading="lazy" style="grid-column:1 / -1;width:100%;height:auto;max-height:420px;object-fit:cover;border-radius:12px;border:1.5px solid rgba(255,255,255,.08);display:block;" />` : ''}
             <div>
               <div class="proj-icon">${p.icon}</div>
               <div class="proj-tag${p.tag.includes('Hackathon') ? ' hackathon' : ''}" style="background:${p.tag.includes('Hackathon') ? '' : p.color+'18'};border:${p.tag.includes('Hackathon') ? '' : '1.5px solid '+p.color+'30'};color:${p.tag.includes('Hackathon') ? '' : p.color}">${p.tag}</div>
