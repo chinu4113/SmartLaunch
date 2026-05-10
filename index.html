@@ -1132,7 +1132,7 @@
       { icon:"∞",    title:"Full Package",           desc:"Design + Development + Deployment. You give me the content, I give you a live website.", price:"From ₹9,999", color:"#8b5cf6" },
     ],
     portfolio: [
-      { name:"Dharmasetu",    tag:"Poojari Booking System",  url:"https://dharmasetu-red.vercel.app/", color:"#3b82f6", icon:"🪔", problem:"Pandits and poojaris had zero online presence — devotees had to rely on word-of-mouth to find them, missing out on bookings entirely.", solution:"Built a dedicated online booking platform where poojaris can be discovered and contacted directly. No one looks for a guruji online today — this changes that.", result:"Fully live in under 7 days. Poojaris now have a professional digital presence that works 24/7, even while they're at a puja." },
+      { name:"Dharmasetu",    tag:"Poojari Booking System",  url:"https://dharmasetu-red.vercel.app/", color:"#3b82f6", icon:"🪔", image:"images/dharmasetu-preview.png", problem:"Pandits and poojaris had zero online presence — devotees had to rely on word-of-mouth to find them, missing out on bookings entirely.", solution:"Built a dedicated online booking platform where poojaris can be discovered and contacted directly. No one looks for a guruji online today — this changes that.", result:"Fully live in under 7 days. Poojaris now have a professional digital presence that works 24/7, even while they're at a puja." },
       { name:"Campus AI",     tag:"🏆 Hackathon Winner",      url:"https://campus-ai-tau.vercel.app/",  color:"#f59e0b", icon:"🤖", problem:"Students struggle to find campus resources, schedules, and info fast — buried across PDFs, portals and notice boards with no intelligent search.", solution:"Built an AI-powered campus assistant that answers student queries in natural language — from timetables to events to faculty contacts — all in one place.", result:"Won hackathon prize. Deployed live on Vercel. Students get instant, accurate answers without digging through multiple platforms." },
     ],
     why: [
@@ -2196,6 +2196,7 @@
       <div class="proj-list">
         ${DATA.portfolio.map(p=>`
           <div class="proj-card">
+            ${p.image ? `<img src="${p.image}" alt="${p.name} preview" loading="lazy" style="width:100%;border-radius:12px;margin-bottom:16px;border:1.5px solid rgba(255,255,255,.08);display:block;" />` : ''}
             <div>
               <div class="proj-icon">${p.icon}</div>
               <div class="proj-tag${p.tag.includes('Hackathon') ? ' hackathon' : ''}" style="background:${p.tag.includes('Hackathon') ? '' : p.color+'18'};border:${p.tag.includes('Hackathon') ? '' : '1.5px solid '+p.color+'30'};color:${p.tag.includes('Hackathon') ? '' : p.color}">${p.tag}</div>
